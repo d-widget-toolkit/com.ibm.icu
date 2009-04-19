@@ -6,7 +6,7 @@ import java.lang.all;
 public class SimpleDateFormat : DateFormat {
 
     public this(String string) {
-        // TODO Auto-generated constructor stub
+        implMissing(__FILE__, __LINE__);
     }
 
 }

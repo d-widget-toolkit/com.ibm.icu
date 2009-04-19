@@ -12,42 +12,42 @@ public class DateFormat {
     public static const int MEDIUM = 0;
 
     public static DateFormat getDateInstance() {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return null;
     }
 
     public String format(Date date) {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return null;
     }
 
     public static DateFormat getTimeInstance() {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return null;
     }
 
     public static DateFormat getDateTimeInstance(int l, int m) {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return null;
     }
 
     public static DateFormat getTimeInstance(int s) {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return null;
     }
 
     public static DateFormat getDateInstance(int dateFormat) {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return null;
     }
 
     public Date parse(String str, ParsePosition pos) {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return null;
     }
 
     public String format(Long long2) {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return null;
     }
 

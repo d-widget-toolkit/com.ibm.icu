@@ -6,7 +6,7 @@ import java.lang.all;
 public class CollationKey {
 
     public int compareTo(CollationKey descriptionKey) {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return 0;
     }
 

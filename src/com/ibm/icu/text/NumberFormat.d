@@ -9,42 +9,42 @@ import java.text.ParsePosition;
 public class NumberFormat {
 
     public static NumberFormat getIntegerInstance() {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return null;
     }
 
     public static NumberFormat getNumberInstance() {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return null;
     }
 
     public String format(long longValue) {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return null;
     }
 
     public String format(double doubleValue) {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return null;
     }
 
     public String format(BigInteger number) {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return null;
     }
 
     public Number parse(String source, ParsePosition position) {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return null;
     }
 
     public String format(Number minValue) {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return null;
     }
 
     public static DateFormat getInstance() {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return null;
     }
 

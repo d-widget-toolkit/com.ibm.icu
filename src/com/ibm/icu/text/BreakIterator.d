@@ -9,47 +9,47 @@ public class BreakIterator {
     public static final int DONE = 0;
 
     public static BreakIterator getLineInstance() {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return null;
     }
 
     public void setText(String line) {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         
     }
 
     public int following(int currOffset) {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return 0;
     }
 
     public int next() {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return 0;
     }
 
     public static BreakIterator getWordInstance() {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return null;
     }
 
     public int preceding(int position) {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return 0;
     }
 
     public void setText(CharacterIterator docIter) {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         
     }
 
     public bool isBoundary(int position) {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return false;
     }
 
     public int first() {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return 0;
     }
 

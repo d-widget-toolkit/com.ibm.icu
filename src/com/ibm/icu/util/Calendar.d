@@ -7,12 +7,12 @@ public class Calendar {
     public static final int YEAR = 0;
 
     public static Calendar getInstance() {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return null;
     }
 
     public int get(int year2) {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return 0;
     }
 

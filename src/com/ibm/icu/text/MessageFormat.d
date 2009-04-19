@@ -5,16 +5,16 @@ import java.lang.all;
 public class MessageFormat {
 
     public this(String taskList_line) {
-        // TODO Auto-generated constructor stub
+        implMissing(__FILE__, __LINE__);
     }
 
     public static String format(String format, Object[] args) {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return null;
     }
 
     public String format(Object[] objects) {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return null;
     }
 

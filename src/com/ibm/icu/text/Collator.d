@@ -9,23 +9,23 @@ import java.lang.all;
 public class Collator : Comparator {
 
     public static Collator getInstance() {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return null;
     }
 
     public int compare(Object label, Object label2) {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return 0;
     }
 
     //FIXME missing API
     //public static Collator getInstance(Locale default1) {
-    //    // TODO Auto-generated method stub
+    //    implMissing(__FILE__, __LINE__);
     //    return null;
     //}
 
     public CollationKey getCollationKey(String attributeValue) {
-        // TODO Auto-generated method stub
+        implMissing(__FILE__, __LINE__);
         return null;
     }
 
