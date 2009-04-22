@@ -2,10 +2,15 @@
 module com.ibm.icu.text.MessageFormat;
 
 import java.lang.all;
+
+import com.ibm.icu.mangoicu.UMessageFormat;
+
 public class MessageFormat {
 
-    public this(String taskList_line) {
-        implMissing(__FILE__, __LINE__);
+    private UMessageFormat frm;
+
+    public this(String pattern ) {
+        frm = new UMessageFormat( pattern.toWCharArray() );
     }
 
     public static String format(String format, Object[] args) {

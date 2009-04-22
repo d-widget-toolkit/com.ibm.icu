@@ -2,18 +2,23 @@ module com.ibm.icu.util.Calendar;
 
 import java.lang.all;
 
+import com.ibm.icu.mangoicu.UCalendar;
+
 public class Calendar {
 
-    public static final int YEAR = 0;
+    public static const int YEAR = UCalendar.DateFields.Year;
 
+    private UCalendar cal;
+
+    private this(){
+        cal = new UCalendar( UTimeZone.Default, ULocale.Default );
+    }
     public static Calendar getInstance() {
-        implMissing(__FILE__, __LINE__);
-        return null;
+        return new Calendar();
     }
 
-    public int get(int year2) {
-        implMissing(__FILE__, __LINE__);
-        return 0;
+    public int get(int fld) {
+        return cal.get(cast(UCalendar.DateFields)fld);
     }
 
 }

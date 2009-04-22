@@ -4,12 +4,14 @@ import java.lang.all;
 import java.text.ParsePosition;
 import java.util.Date;
 
+import com.ibm.icu.mangoicu.UDateFormat;
+
 public class DateFormat {
 
-    public static const int LONG = 0;
-    public static const int FULL = 0;
-    public static const int SHORT = 0;
-    public static const int MEDIUM = 0;
+    public static const int LONG = UDateFormat.Style.Long;
+    public static const int FULL = UDateFormat.Style.Full;
+    public static const int SHORT = UDateFormat.Style.Short;
+    public static const int MEDIUM = UDateFormat.Style.Medium;
 
     public static DateFormat getDateInstance() {
         implMissing(__FILE__, __LINE__);
