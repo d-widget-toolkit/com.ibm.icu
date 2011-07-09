@@ -190,50 +190,12 @@ class UTransform : ICU
 
         ***********************************************************************/
 
-        private static void* library;
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        private static extern (C) 
-        {
-                Handle  function (wchar*, uint, uint, wchar*, uint, void*, inout UErrorCode) utrans_openU;
-                void    function (Handle) utrans_close;
-                wchar*  function (Handle, inout uint) utrans_getUnicodeID;
-                void    function (Handle, wchar*, uint, inout UErrorCode) utrans_setFilter;
-                void    function (Handle, wchar*, uint*, uint, uint, uint*, inout UErrorCode) utrans_transUChars;
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static  FunctionLoader.Bind[] targets = 
-                [
-                {cast(void**) &utrans_openU,            "utrans_openU"}, 
-                {cast(void**) &utrans_close,            "utrans_close"},
-                {cast(void**) &utrans_getUnicodeID,     "utrans_getUnicodeID"},
-                {cast(void**) &utrans_setFilter,        "utrans_setFilter"},
-                {cast(void**) &utrans_transUChars,      "utrans_transUChars"},
-                ];
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static this ()
-        {
-                library = FunctionLoader.bind (icuin, targets);
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static ~this ()
-        {
-                FunctionLoader.unbind (library);
-        }
+        mixin(genICUNative!("in"
+                ,"Handle  function (wchar*, uint, uint, wchar*, uint, void*, ref UErrorCode)", "utrans_openU"
+                ,"void    function (Handle)", "utrans_close"
+                ,"wchar*  function (Handle, ref uint)", "utrans_getUnicodeID"
+                ,"void    function (Handle, wchar*, uint, ref UErrorCode)", "utrans_setFilter"
+                ,"void    function (Handle, wchar*, uint*, uint, uint, uint*, ref UErrorCode)", "utrans_transUChars"
+        ));
 }
 

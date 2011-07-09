@@ -104,7 +104,7 @@ interface ITranscoder
 {
         void reset ();
 
-        bool convert (void[] input, void[] output, inout UAdjust x, bool flush);
+        bool convert (void[] input, void[] output, ref UAdjust x, bool flush);
 }
 
 /*******************************************************************************
@@ -438,7 +438,7 @@ class UConverter : ICU
 
         ***********************************************************************/
 
-        bool encode (wchar[] input, void[] output, inout UAdjust x, bool flush)
+        bool encode (wchar[] input, void[] output, ref UAdjust x, bool flush)
         {
                 UErrorCode   e;
                 wchar*  src = input.ptr;
@@ -549,7 +549,7 @@ class UConverter : ICU
 
         ***********************************************************************/
         
-        bool decode (void[] input, wchar[] output, inout UAdjust x, bool flush)
+        bool decode (void[] input, wchar[] output, ref UAdjust x, bool flush)
         {
                 UErrorCode   e;
                 void*   src = input.ptr;
@@ -596,7 +596,7 @@ class UConverter : ICU
 
         **********************************************************************/
 
-        static int opApply (int delegate(inout char[] element) dg)
+        static int opApply (int delegate(ref char[] element) dg)
         {
                 char[]          name;
                 int             result;
@@ -654,7 +654,7 @@ class UConverter : ICU
 
                 **************************************************************/
 
-                bool convert (void[] input, void[] output, inout UAdjust x, bool flush)
+                bool convert (void[] input, void[] output, ref UAdjust x, bool flush)
                 {
                         UErrorCode   e;
                         void*   src = input.ptr;
@@ -686,79 +686,28 @@ class UConverter : ICU
 
         ***********************************************************************/
 
-        private static void* library;
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        private static extern (C) 
-        {
-                int    function (char*, char*) ucnv_compareNames;
-                Handle function (char*, inout UErrorCode) ucnv_open;
-                char*  function (void*, uint, inout uint, inout UErrorCode) ucnv_detectUnicodeSignature;
-                void   function (Handle) ucnv_close;
-                void   function (Handle) ucnv_reset;
-                int    function (Handle) ucnv_resetToUnicode;
-                int    function (Handle) ucnv_resetFromUnicode;
-                ubyte  function (Handle) ucnv_getMaxCharSize;
-                ubyte  function (Handle) ucnv_getMinCharSize;
-                char*  function (Handle, inout UErrorCode) ucnv_getName;
-                uint   function (Handle, wchar*, uint, void*, uint, inout UErrorCode) ucnv_toUChars;
-                uint   function (Handle, void*, uint, wchar*, uint, inout UErrorCode) ucnv_fromUChars;
-                void   function (Handle, void**, void*, wchar**, wchar*, int*, ubyte, inout UErrorCode) ucnv_fromUnicode;
-                void   function (Handle, wchar**, wchar*, void**, void*, int*, ubyte, inout UErrorCode)  ucnv_toUnicode;
-                void   function (Handle, Handle, void**, void*, void**, void*, wchar*, wchar*, wchar*, wchar*, ubyte, ubyte, inout UErrorCode) ucnv_convertEx;
-                ubyte  function (Handle) ucnv_isAmbiguous;
-                char*  function (uint) ucnv_getAvailableName;
-                uint   function () ucnv_countAvailable;
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static  FunctionLoader.Bind[] targets = 
-                [
-                {cast(void**) &ucnv_open,                   "ucnv_open"}, 
-                {cast(void**) &ucnv_close,                  "ucnv_close"},
-                {cast(void**) &ucnv_reset,                  "ucnv_reset"},
-                {cast(void**) &ucnv_resetToUnicode,         "ucnv_resetToUnicode"},
-                {cast(void**) &ucnv_resetFromUnicode,       "ucnv_resetFromUnicode"},
-                {cast(void**) &ucnv_compareNames,           "ucnv_compareNames"},
-                {cast(void**) &ucnv_getMaxCharSize,         "ucnv_getMaxCharSize"},
-                {cast(void**) &ucnv_getMinCharSize,         "ucnv_getMinCharSize"},
-                {cast(void**) &ucnv_getName,                "ucnv_getName"},
-                {cast(void**) &ucnv_detectUnicodeSignature, "ucnv_detectUnicodeSignature"},
-                {cast(void**) &ucnv_toUChars,               "ucnv_toUChars"},
-                {cast(void**) &ucnv_fromUChars,             "ucnv_fromUChars"},
-                {cast(void**) &ucnv_toUnicode,              "ucnv_toUnicode"},
-                {cast(void**) &ucnv_fromUnicode,            "ucnv_fromUnicode"},
-                {cast(void**) &ucnv_convertEx,              "ucnv_convertEx"},
-                {cast(void**) &ucnv_isAmbiguous,            "ucnv_isAmbiguous"},
-                {cast(void**) &ucnv_countAvailable,         "ucnv_countAvailable"},
-                {cast(void**) &ucnv_getAvailableName,       "ucnv_getAvailableName"},
-                ];
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static this ()
-        {
-                library = FunctionLoader.bind (icuuc, targets);
+        mixin(genICUNative!("uc"
+                ,"int    function (char*, char*)", "ucnv_compareNames"
+                ,"Handle function (char*, ref UErrorCode)", "ucnv_open"
+                ,"char*  function (void*, uint, ref uint, ref UErrorCode)", "ucnv_detectUnicodeSignature"
+                ,"void   function (Handle)", "ucnv_close"
+                ,"void   function (Handle)", "ucnv_reset"
+                ,"int    function (Handle)", "ucnv_resetToUnicode"
+                ,"int    function (Handle)", "ucnv_resetFromUnicode"
+                ,"ubyte  function (Handle)", "ucnv_getMaxCharSize"
+                ,"ubyte  function (Handle)", "ucnv_getMinCharSize"
+                ,"char*  function (Handle, ref UErrorCode)", "ucnv_getName"
+                ,"uint   function (Handle, wchar*, uint, void*, uint, ref UErrorCode)", "ucnv_toUChars"
+                ,"uint   function (Handle, void*, uint, wchar*, uint, ref UErrorCode)", "ucnv_fromUChars"
+                ,"void   function (Handle, void**, void*, wchar**, wchar*, int*, ubyte, ref UErrorCode)", "ucnv_fromUnicode"
+                ,"void   function (Handle, wchar**, wchar*, void**, void*, int*, ubyte, ref UErrorCode)", "ucnv_toUnicode"
+                ,"void   function (Handle, Handle, void**, void*, void**, void*, wchar*, wchar*, wchar*, wchar*, ubyte, ubyte, ref UErrorCode)", "ucnv_convertEx"
+                ,"ubyte  function (Handle)", "ucnv_isAmbiguous"
+                ,"char*  function (uint)", "ucnv_getAvailableName"
+                ,"uint   function ()", "ucnv_countAvailable"
+        ));
 /+
                 foreach (char[] name; UConverter)
                          printf ("%.*s\n", name);
 +/
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static ~this ()
-        {
-                FunctionLoader.unbind (library);
-        }
 }

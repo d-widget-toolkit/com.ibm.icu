@@ -88,6 +88,7 @@ private import  com.ibm.icu.mangoicu.ICU,
                 com.ibm.icu.mangoicu.UString;
 
 public  import  com.ibm.icu.mangoicu.ULocale;
+private import java.lang.util;
 
 /*******************************************************************************
 
@@ -112,7 +113,7 @@ class UMessageFormat : ICU
 
         ***********************************************************************/
 
-        this (wchar[] pattern, inout ULocale locale = ULocale.Default)
+        this (wchar[] pattern, ref ULocale locale = ULocale.Default)
         {       
                 UErrorCode e;
 
@@ -127,7 +128,7 @@ class UMessageFormat : ICU
 
         ***********************************************************************/
 
-        this (UStringView pattern, inout ULocale locale = ULocale.Default)
+        this (UStringView pattern, ref ULocale locale = ULocale.Default)
         {
                 this (pattern.get, locale);
         }
@@ -150,7 +151,7 @@ class UMessageFormat : ICU
 
         ***********************************************************************/
 
-        UMessageFormat setLocale (inout ULocale locale)
+        UMessageFormat setLocale (ref ULocale locale)
         {
                 umsg_setLocale (handle, toString(locale.name));
                 return this;
@@ -163,9 +164,9 @@ class UMessageFormat : ICU
 
         ***********************************************************************/
 
-        UMessageFormat getLocale (inout ULocale locale)
+        UMessageFormat getLocale (ref ULocale locale)
         {
-                locale.name = toArray (umsg_getLocale (handle));
+                locale.name = cast(String) toArray (umsg_getLocale (handle));
                 return this;
         }
 
@@ -192,7 +193,7 @@ class UMessageFormat : ICU
 
         UMessageFormat getPattern (UString s)
         {
-                uint fmt (wchar* dst, uint length, inout UErrorCode e)
+                uint fmt (wchar* dst, uint length, ref UErrorCode e)
                 {
                         return umsg_toPattern (handle, dst, length, e);
                 }
@@ -212,7 +213,7 @@ class UMessageFormat : ICU
 
         UMessageFormat format (UString s, Args* list)
         {
-                uint fmt (wchar* dst, uint length, inout UErrorCode e)
+                uint fmt (wchar* dst, uint length, ref UErrorCode e)
                 {
                         return umsg_vformat (handle, dst, length, list.args.ptr, e);
                 }
@@ -349,56 +350,15 @@ class UMessageFormat : ICU
 
         ***********************************************************************/
 
-        private static void* library;
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        private static extern (C) 
-        {
-                Handle  function (wchar*, uint, char*, void*, inout UErrorCode) umsg_open;
-                void    function (Handle) umsg_close;
-                void    function (Handle, char*) umsg_setLocale;
-                char*   function (Handle) umsg_getLocale;
-                uint    function (Handle, wchar*, uint, inout UErrorCode) umsg_toPattern;
-                void    function (Handle, wchar*, uint, void*, inout UErrorCode) umsg_applyPattern;
-                uint    function (Handle, wchar*, uint, void*, inout UErrorCode) umsg_vformat;
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static  FunctionLoader.Bind[] targets = 
-                [
-                {cast(void**) &umsg_open,               "umsg_open"}, 
-                {cast(void**) &umsg_close,              "umsg_close"},
-                {cast(void**) &umsg_setLocale,          "umsg_setLocale"},
-                {cast(void**) &umsg_getLocale,          "umsg_getLocale"},
-                {cast(void**) &umsg_toPattern,          "umsg_toPattern"},
-                {cast(void**) &umsg_applyPattern,       "umsg_applyPattern"},
-                {cast(void**) &umsg_vformat,            "umsg_vformat"},
-                ];
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static this ()
-        {
-                library = FunctionLoader.bind (icuin, targets);
-                //test ();
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static ~this ()
-        {
-                FunctionLoader.unbind (library);
-        }
+        mixin(genICUNative!("in"
+                ,"Handle  function (wchar*, uint, char*, void*, ref UErrorCode)", "umsg_open"
+                ,"void    function (Handle)", "umsg_close"
+                ,"void    function (Handle, char*)", "umsg_setLocale"
+                ,"char*   function (Handle)", "umsg_getLocale"
+                ,"uint    function (Handle, wchar*, uint, ref UErrorCode)", "umsg_toPattern"
+                ,"void    function (Handle, wchar*, uint, void*, ref UErrorCode)", "umsg_applyPattern"
+                ,"uint    function (Handle, wchar*, uint, void*, ref UErrorCode)", "umsg_vformat"
+        ));
 
         /***********************************************************************
 

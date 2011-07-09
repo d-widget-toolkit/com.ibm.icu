@@ -97,7 +97,7 @@ private import java.lang.util;
 
 struct ULocale 
 {
-        public CString name;
+        public String name;
 
         /***********************************************************************
         
@@ -157,9 +157,9 @@ struct ULocale
         
         ***********************************************************************/
 
-        static void getDefault (inout ULocale locale)
+        static void getDefault (ref ULocale locale)
         {       
-                locale.name = ICU.toArray (uloc_getDefault());
+                locale.name = cast(String)ICU.toArray (uloc_getDefault());
                 if (! locale.name)
                       ICU.exception ("failed to get default locale");
         }
@@ -168,7 +168,7 @@ struct ULocale
         
         ***********************************************************************/
         
-        static void setDefault (inout ULocale locale)
+        static void setDefault (ref ULocale locale)
         {
                 ICU.UErrorCode e;
                 
@@ -188,43 +188,8 @@ struct ULocale
 
         ***********************************************************************/    
         
-        private static void* library;
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        private static extern (C) 
-        {
-                char* function () uloc_getDefault;
-                void  function (char*, inout ICU.UErrorCode) uloc_setDefault;
-        }
-
-        /**********************************************************************
-
-        ***********************************************************************/
-
-        static  FunctionLoader.Bind[] targets = 
-                [
-                {cast(void**) &uloc_getDefault, "uloc_getDefault"}, 
-                {cast(void**) &uloc_setDefault, "uloc_setDefault"},
-                ];
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static this ()
-        {
-                library = FunctionLoader.bind (ICU.icuuc, targets);
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static ~this ()
-        {
-                FunctionLoader.unbind (library);
-        }
+        mixin(/*ICU.*/genICUNative!("uc"
+                ,"char* function ()", "uloc_getDefault"
+                ,"void  function (char*, ref ICU.UErrorCode)", "uloc_setDefault"
+        ));
 }

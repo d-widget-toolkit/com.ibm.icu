@@ -149,101 +149,37 @@ struct UText {
 
         ***********************************************************************/
 
-        private static void* library;
-
-        /***********************************************************************
-
-        ***********************************************************************/
-    static extern(System){
-        UText * function(UText* ut) utext_close;
-        UText * function(UText* ut, char *s, long length, inout ICU.UErrorCode status) utext_openUTF8;
-//         UText * function(UText* ut, UChar *s, int64_t length, inout UErrorCode status) utext_openUChars;
-//         UText * function(UText* ut, U_NAMESPACE_QUALIFIER UnicodeString *s, inout UErrorCode status) utext_openUnicodeString;
-//         UText * function(UText* ut, U_NAMESPACE_QUALIFIER UnicodeString *s, inout UErrorCode status) utext_openConstUnicodeString;
-//         UText * function(UText* ut, U_NAMESPACE_QUALIFIER Replaceable *rep, inout UErrorCode status) utext_openReplaceable;
-//         UText * function(UText* ut, U_NAMESPACE_QUALIFIER CharacterIterator *ic, inout UErrorCode status) utext_openCharacterIterator;
-//         UText * function(UText* ut, UText *src, UBool deep, UBool readOnly, inout UErrorCode status) utext_clone;
-//         UBool function(const UText *a, const UText *b) utext_equals;
-//         int64_t function(UText* ut) utext_nativeLength;
-//         UBool function(UText* ut) utext_isLengthExpensive;
-//         UChar32 function(UText* ut, int64_t nativeIndex) utext_char32At;
-//         UChar32 function(UText* ut) utext_current32;
-//         UChar32 function(UText* ut) utext_next32;
-//         UChar32 function(UText* ut) utext_previous32;
-//         UChar32 function(UText* ut, int64_t nativeIndex) utext_next32From;
-//         UChar32 function(UText* ut, int64_t nativeIndex) utext_previous32From;
-//         int64_t function(UText* ut) utext_getNativeIndex;
-//         void function(UText* ut, int64_t nativeIndex) utext_setNativeIndex;
-//         UBool function(UText* ut, int delta) utext_moveIndex32;
-//         int64_t function(UText* ut) utext_getPreviousNativeIndex;
-//         int function(UText* ut, int64_t nativeStart, int64_t nativeLimit,
-//                 UChar *dest, int destCapacity,
-//                 inout UErrorCode status) utext_extract;
-//         UBool function(UText* ut) utext_isWritable;
-//         UBool function(UText* ut) utext_hasMetaData;
-//         int function(UText* ut,
-//                 int64_t nativeStart, int64_t nativeLimit,
-//                 UChar *replacementText, int replacementLength,
-//                 inout UErrorCode status) utext_replace;
-//         void function(UText* ut,
-//                 int64_t nativeStart, int64_t nativeLimit,
-//                 int64_t destIndex,
-//                 UBool move,
-//                 inout UErrorCode status) utext_copy;
-//         void function(UText* ut) utext_freeze;
-//         UText * function(UText* ut, int extraSpace, inout UErrorCode status) utext_setup;
-    }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-        static  FunctionLoader.Bind[] targets = [
-            {cast(void**) &utext_close,                   "utext_close"},
-            {cast(void**) &utext_openUTF8,                "utext_openUTF8"},
-//         {cast(void**) &utext_openUChars,              "utext_openUChars"},
-//         {cast(void**) &utext_openUnicodeString,       "utext_openUnicodeString"},
-//         {cast(void**) &utext_openConstUnicodeString,  "utext_openConstUnicodeString"},
-//         {cast(void**) &utext_openReplaceable,         "utext_openReplaceable"},
-//         {cast(void**) &utext_openCharacterIterator,   "utext_openCharacterIterator"},
-//         {cast(void**) &utext_clone,                   "utext_clone"},
-//         {cast(void**) &utext_equals,                  "utext_equals"},
-//         {cast(void**) &utext_nativeLength,            "utext_nativeLength"},
-//         {cast(void**) &utext_isLengthExpensive,       "utext_isLengthExpensive"},
-//         {cast(void**) &utext_char32At,                "utext_char32At"},
-//         {cast(void**) &utext_current32,               "utext_current32"},
-//         {cast(void**) &utext_next32,                  "utext_next32"},
-//         {cast(void**) &utext_next32From,              "utext_next32From"},
-//         {cast(void**) &utext_previous32,              "utext_previous32"},
-//         {cast(void**) &utext_previous32From,          "utext_previous32From"},
-//         {cast(void**) &utext_setNativeIndex,          "utext_setNativeIndex"},
-//         {cast(void**) &utext_moveIndex32,             "utext_moveIndex32"},
-//         {cast(void**) &utext_getPreviousNativeIndex,  "utext_getPreviousNativeIndex"},
-//         {cast(void**) &utext_extract,                 "utext_extract"},
-//         {cast(void**) &utext_isWritable,              "utext_isWritable"},
-//         {cast(void**) &utext_hasMetaData,             "utext_hasMetaData"},
-//         {cast(void**) &utext_replace,                 "utext_replace"},
-//         {cast(void**) &utext_copy,                    "utext_copy"},
-//         {cast(void**) &utext_freeze,                  "utext_freeze"},
-//         {cast(void**) &utext_setup,                   "utext_setup"},
-        ];
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static this ()
-        {
-                library = FunctionLoader.bind (ICU.icuuc, targets);
-                //test ();
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static ~this ()
-        {
-                FunctionLoader.unbind (library);
-        }
-
+        /*extern(System)*/
+        mixin(genICUNative!("uc"
+            ,"UText * function(UText* ut)", "utext_close"
+            ,"UText * function(UText* ut, char *s, long length, ref ICU.UErrorCode status)", "utext_openUTF8"
+            /+
+            ,"UText * function(UText* ut, UChar *s, int64_t length, ref UErrorCode status)", "utext_openUChars"
+            ,"UText * function(UText* ut, U_NAMESPACE_QUALIFIER UnicodeString *s, ref UErrorCode status)", "utext_openUnicodeString"
+            ,"UText * function(UText* ut, U_NAMESPACE_QUALIFIER UnicodeString *s, ref UErrorCode status)", "utext_openConstUnicodeString"
+            ,"UText * function(UText* ut, U_NAMESPACE_QUALIFIER Replaceable *rep, ref UErrorCode status)", "utext_openReplaceable"
+            ,"UText * function(UText* ut, U_NAMESPACE_QUALIFIER CharacterIterator *ic, ref UErrorCode status)", "utext_openCharacterIterator"
+            ,"UText * function(UText* ut, UText *src, UBool deep, UBool readOnly, ref UErrorCode status)", "utext_clone"
+            ,"UBool function(const UText *a, const UText *b)", "utext_equals"
+            ,"int64_t function(UText* ut)", "utext_nativeLength"
+            ,"UBool function(UText* ut)", "utext_isLengthExpensive"
+            ,"UChar32 function(UText* ut, int64_t nativeIndex)", "utext_char32At"
+            ,"UChar32 function(UText* ut)", "utext_current32"
+            ,"UChar32 function(UText* ut)", "utext_next32"
+            ,"UChar32 function(UText* ut)", "utext_previous32"
+            ,"UChar32 function(UText* ut, int64_t nativeIndex)", "utext_next32From"
+            ,"UChar32 function(UText* ut, int64_t nativeIndex)", "utext_previous32From"
+            ,"int64_t function(UText* ut)", "utext_getNativeIndex"
+            ,"void function(UText* ut, int64_t nativeIndex)", "utext_setNativeIndex"
+            ,"UBool function(UText* ut, int delta)", "utext_moveIndex32"
+            ,"int64_t function(UText* ut)", "utext_getPreviousNativeIndex"
+            ,"int function(UText* ut, int64_t nativeStart, int64_t nativeLimit, UChar *dest, int destCapacity, ref UErrorCode status)", "utext_extract"
+            ,"UBool function(UText* ut)", "utext_isWritable"
+            ,"UBool function(UText* ut)", "utext_hasMetaData"
+            ,"int function(UText* ut, int64_t nativeStart, int64_t nativeLimit, UChar *replacementText, int replacementLength, ref UErrorCode status)", "utext_replace"
+            ,"void function(UText* ut, int64_t nativeStart, int64_t nativeLimit, int64_t destIndex, UBool move, ref UErrorCode status)", "utext_copy"
+            ,"void function(UText* ut)", "utext_freeze"
+            ,"UText * function(UText* ut, int extraSpace, ref UErrorCode status)", "utext_setup"
+            +/
+        ));
 }

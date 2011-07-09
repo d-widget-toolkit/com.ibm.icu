@@ -195,7 +195,7 @@ class UEnumeration : ICU
 
         ***********************************************************************/
 
-        bool next (inout wchar[] dst)
+        bool next (ref wchar[] dst)
         {       
                 ICU.UErrorCode e;
                 uint      len;
@@ -216,49 +216,11 @@ class UEnumeration : ICU
 
         ***********************************************************************/
 
-        private static void* library;
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        private static extern (C) 
-        {
-                void   function (Handle) uenum_close;
-                uint   function (Handle, inout UErrorCode) uenum_count;
-                void   function (Handle, inout UErrorCode) uenum_reset;
-                char*  function (Handle, uint*, inout UErrorCode) uenum_next;
-                wchar* function (Handle, uint*, inout UErrorCode) uenum_unext;
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static  FunctionLoader.Bind[] targets = 
-                [
-                {cast(void**) &uenum_close, "uenum_close"}, 
-                {cast(void**) &uenum_count, "uenum_count"}, 
-                {cast(void**) &uenum_reset, "uenum_reset"}, 
-                {cast(void**) &uenum_next,  "uenum_next"}, 
-                {cast(void**) &uenum_unext, "uenum_unext"}, 
-                ];
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static this ()
-        {
-                library = FunctionLoader.bind (icuuc, targets);
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static ~this ()
-        {
-                FunctionLoader.unbind (library);
-        }
+        mixin(genICUNative!("uc"
+                ,"void   function (Handle)", "uenum_close"
+                ,"uint   function (Handle, ref UErrorCode)", "uenum_count"
+                ,"void   function (Handle, ref UErrorCode)", "uenum_reset"
+                ,"char*  function (Handle, uint*, ref UErrorCode)", "uenum_next"
+                ,"wchar* function (Handle, uint*, ref UErrorCode)", "uenum_unext"
+        ));
 }

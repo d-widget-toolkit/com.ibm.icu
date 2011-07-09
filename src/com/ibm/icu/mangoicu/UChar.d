@@ -670,7 +670,7 @@ class UChar : ICU
 
         ***********************************************************************/
 
-        char[] getCharName (dchar c, CharNameChoice choice, inout char[] dst)
+        char[] getCharName (dchar c, CharNameChoice choice, ref char[] dst)
         {
                 UErrorCode e;
 
@@ -685,7 +685,7 @@ class UChar : ICU
 
         ***********************************************************************/
 
-        char[] getComment (dchar c, inout char[] dst)
+        char[] getComment (dchar c, ref char[] dst)
         {
                 UErrorCode e;
 
@@ -740,7 +740,7 @@ class UChar : ICU
 
         ***********************************************************************/
 
-        void getUnicodeVersion (inout Version v)
+        void getUnicodeVersion (ref Version v)
         {
                 u_getUnicodeVersion (v);
         }
@@ -751,7 +751,7 @@ class UChar : ICU
 
         ***********************************************************************/
 
-        void getCharAge (dchar c, inout Version v)
+        void getCharAge (dchar c, ref Version v)
         {
                 u_charAge (c, v);
         }
@@ -1139,102 +1139,18 @@ class UChar : ICU
 
         ***********************************************************************/
 
-        private static void* library;
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        private static extern (C) 
-        {
-                uint   function (uint, uint) u_getIntPropertyValue;
-                uint   function (uint) u_getIntPropertyMinValue;
-                uint   function (uint) u_getIntPropertyMaxValue;
-                uint   function (dchar) u_charDirection;
-                uint   function (dchar) ublock_getCode;
-                uint   function (dchar, uint, char*, uint, inout UErrorCode) u_charName;
-                uint   function (dchar, char*, uint, inout UErrorCode) u_getISOComment;
-                uint   function (uint, char*, inout UErrorCode) u_charFromName;
-                char*  function (uint, uint) u_getPropertyName;
-                char*  function (uint, uint, uint) u_getPropertyValueName;
-                void   function (inout Version) u_getUnicodeVersion;
-                void   function (dchar, inout Version) u_charAge;
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static  FunctionLoader.Bind[] targets = 
-                [
-                {cast(void**) &forDigit,                "u_forDigit"},
-                {cast(void**) &digit,                   "u_digit"},
-                {cast(void**) &foldCase,                "u_foldCase"},
-                {cast(void**) &toTitle,                 "u_totitle"},
-                {cast(void**) &toUpper,                 "u_toupper"},
-                {cast(void**) &toLower,                 "u_tolower"},
-                {cast(void**) &charType,                "u_charType"},
-                {cast(void**) &charMirror,              "u_charMirror"},
-                {cast(void**) &charDigitValue,          "u_charDigitValue"},
-                {cast(void**) &isJavaIDPart,            "u_isJavaIDPart"},
-                {cast(void**) &isJavaIDStart,           "u_isJavaIDStart"},
-                {cast(void**) &isIDIgnorable,           "u_isIDIgnorable"},
-                {cast(void**) &isIDPart,                "u_isIDPart"},
-                {cast(void**) &isIDStart,               "u_isIDStart"},
-                {cast(void**) &isMirrored,              "u_isMirrored"},
-                {cast(void**) &isBase,                  "u_isbase"},
-                {cast(void**) &isPrint,                 "u_isprint"},
-                {cast(void**) &isISOControl,            "u_isISOControl"},
-                {cast(void**) &isCtrl,                  "u_iscntrl"},
-                {cast(void**) &isWhiteSpace,            "u_isWhitespace"},
-                {cast(void**) &isJavaSpaceChar,         "u_isJavaSpaceChar"},
-                {cast(void**) &isSpace,                 "u_isspace"},
-                {cast(void**) &isDefined,               "u_isdefined"},
-                {cast(void**) &isBlank,                 "u_isblank"},
-                {cast(void**) &isGraph,                 "u_isgraph"},
-                {cast(void**) &isPunct,                 "u_ispunct"},
-                {cast(void**) &isHexDigit,              "u_isxdigit"},
-                {cast(void**) &isAlpha,                 "u_isalpha"},
-                {cast(void**) &isAlphaNumeric,          "u_isalnum"},
-                {cast(void**) &isDigit,                 "u_isdigit"},
-                {cast(void**) &isTitle,                 "u_istitle"},
-                {cast(void**) &isUpper,                 "u_isupper"},
-                {cast(void**) &isLower,                 "u_islower"},
-                {cast(void**) &isUAlphabetic,           "u_isUAlphabetic"},
-                {cast(void**) &isUWhiteSpace,           "u_isUWhiteSpace"},
-                {cast(void**) &isUUppercase,            "u_isUUppercase"},
-                {cast(void**) &isULowercase,            "u_isULowercase"},
-                {cast(void**) &getNumericValue,         "u_getNumericValue"},
-                {cast(void**) &getCombiningClass,       "u_getCombiningClass"},
-                {cast(void**) &u_getIntPropertyValue,   "u_getIntPropertyValue"},
-                {cast(void**) &u_getIntPropertyMinValue,"u_getIntPropertyMinValue"},
-                {cast(void**) &u_getIntPropertyMaxValue,"u_getIntPropertyMaxValue"},
-                {cast(void**) &u_charDirection,         "u_charDirection"},
-                {cast(void**) &ublock_getCode,          "ublock_getCode"},
-                {cast(void**) &u_charName,              "u_charName"},
-                {cast(void**) &u_getISOComment,         "u_getISOComment"},
-                {cast(void**) &u_charFromName,          "u_charFromName"},
-                {cast(void**) &u_getPropertyName,       "u_getPropertyName"},
-                {cast(void**) &u_getPropertyValueName,  "u_getPropertyValueName"},
-                {cast(void**) &u_getUnicodeVersion,     "u_getUnicodeVersion"},
-                {cast(void**) &u_charAge,               "u_charAge"},
-                ];
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static this ()
-        {
-                library = FunctionLoader.bind (icuuc, targets);
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static ~this ()
-        {
-                FunctionLoader.unbind (library);
-        }
+        mixin(genICUNative!("uc"
+                ,"uint   function (uint, uint)", "u_getIntPropertyValue"
+                ,"uint   function (uint)", "u_getIntPropertyMinValue"
+                ,"uint   function (uint)", "u_getIntPropertyMaxValue"
+                ,"uint   function (dchar)", "u_charDirection"
+                ,"uint   function (dchar)", "ublock_getCode"
+                ,"uint   function (dchar, uint, char*, uint, ref UErrorCode)", "u_charName"
+                ,"uint   function (dchar, char*, uint, ref UErrorCode)", "u_getISOComment"
+                ,"uint   function (uint, char*, ref UErrorCode)", "u_charFromName"
+                ,"char*  function (uint, uint)", "u_getPropertyName"
+                ,"char*  function (uint, uint, uint)", "u_getPropertyValueName"
+                ,"void   function (ref Version)", "u_getUnicodeVersion"
+                ,"void   function (dchar, ref Version)", "u_charAge"
+        ));
 }

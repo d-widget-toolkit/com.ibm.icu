@@ -88,6 +88,7 @@ private import  com.ibm.icu.mangoicu.ICU,
                 com.ibm.icu.mangoicu.UString;
 
 public  import  com.ibm.icu.mangoicu.ULocale;
+private import java.lang.util;
 
 /*******************************************************************************
 
@@ -168,7 +169,7 @@ class UResourceBundle : ICU
 
         ***********************************************************************/
 
-        this (inout ULocale locale, char[] path = null)
+        this (ref ULocale locale, char[] path = null)
         {
                 UErrorCode e;
 
@@ -387,7 +388,7 @@ class UResourceBundle : ICU
 
         ***********************************************************************/
 
-        void getVersion (inout Version info)
+        void getVersion (ref Version info)
         {
                 ures_getVersion (handle, info);
         }
@@ -398,11 +399,11 @@ class UResourceBundle : ICU
 
         ***********************************************************************/
 
-        void getLocale (inout ULocale locale)
+        void getLocale (ref ULocale locale)
         {
                 UErrorCode e;
 
-                locale.name = toArray (ures_getLocale (handle, e));
+                locale.name = cast(String) toArray (ures_getLocale (handle, e));
                 testError (e, "failed to get resource locale");
         }
 
@@ -438,7 +439,7 @@ class UResourceBundle : ICU
 
         ***********************************************************************/
 
-        private static final UResourceBundle get (Handle handle, inout UErrorCode e)
+        private static final UResourceBundle get (Handle handle, ref UErrorCode e)
         {
                 testError (e, "failed to create resource bundle");
                 if (handle)
@@ -455,90 +456,38 @@ class UResourceBundle : ICU
 
         ***********************************************************************/
 
-        private static void* library;
+        mixin(genICUNative!("uc"
+                ,"Handle  function (char*, char*, ref UErrorCode)", "ures_open"
+                ,"void    function (Handle)", "ures_close"
+                ,"char*   function (Handle, ref UErrorCode)", "ures_getLocale"
+                ,"void    function (Handle, ref Version)", "ures_getVersion"
+                ,"uint    function (Handle)", "ures_getSize"
+                ,"int     function (Handle, ref UErrorCode)", "ures_getInt"
+                ,"wchar*  function (Handle, ref uint, ref UErrorCode)", "ures_getString"
+                ,"wchar*  function (Handle, uint, ref uint, ref UErrorCode)", "ures_getStringByIndex"
+                ,"wchar*  function (Handle, char*, ref uint, ref UErrorCode)", "ures_getStringByKey"
+                ,"void*   function (Handle, ref uint, ref UErrorCode)", "ures_getBinary"
+                ,"int*    function (Handle, ref uint, ref UErrorCode)", "ures_getIntVector"
+                ,"byte    function (Handle)", "ures_hasNext"
+                ,"void    function (Handle)", "ures_resetIterator"
+                ,"wchar*  function (Handle, ref uint, ref char*, ref UErrorCode)", "ures_getNextString"
+                ,"char*   function (Handle)", "ures_getKey"
+                ,"int     function (Handle)", "ures_getType"
+                ,"Handle  function (Handle, Handle, ref UErrorCode)", "ures_getNextResource"
+                ,"Handle  function (Handle, uint, Handle, ref UErrorCode)", "ures_getByIndex"
+                ,"Handle  function (Handle, char*, Handle, ref UErrorCode)", "ures_getByKey"
+        ));
 
         /***********************************************************************
 
         ***********************************************************************/
 
-        private static extern (C) 
-        {
-                Handle  function (char*, char*, inout UErrorCode) ures_open;
-                void    function (Handle) ures_close;
-                char*   function (Handle, inout UErrorCode) ures_getLocale;
-                void    function (Handle, inout Version) ures_getVersion;
-                uint    function (Handle) ures_getSize;
-                int     function (Handle, inout UErrorCode) ures_getInt;
-                wchar*  function (Handle, inout uint, inout UErrorCode) ures_getString;
-                wchar*  function (Handle, uint, inout uint, inout UErrorCode) ures_getStringByIndex;
-                wchar*  function (Handle, char*, inout uint, inout UErrorCode) ures_getStringByKey;
-                void*   function (Handle, inout uint, inout UErrorCode) ures_getBinary;
-                int*    function (Handle, inout uint, inout UErrorCode) ures_getIntVector;
-                byte    function (Handle) ures_hasNext;
-                void    function (Handle) ures_resetIterator;
-                wchar*  function (Handle, inout uint, inout char*, inout UErrorCode) ures_getNextString;
-                char*   function (Handle) ures_getKey;
-                int     function (Handle) ures_getType;
-                Handle  function (Handle, Handle, inout UErrorCode) ures_getNextResource;
-                Handle  function (Handle, uint, Handle, inout UErrorCode) ures_getByIndex;
-                Handle  function (Handle, char*, Handle, inout UErrorCode) ures_getByKey;
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static  FunctionLoader.Bind[] targets = 
-                [
-                {cast(void**) &ures_open,               "ures_open"}, 
-                {cast(void**) &ures_close,              "ures_close"},
-                {cast(void**) &ures_getLocale,          "ures_getLocale"},
-                {cast(void**) &ures_getVersion,         "ures_getVersion"},
-                {cast(void**) &ures_getSize,            "ures_getSize"},
-                {cast(void**) &ures_getInt,             "ures_getInt"},
-                {cast(void**) &ures_getString,          "ures_getString"},
-                {cast(void**) &ures_getStringByIndex,   "ures_getStringByIndex"},
-                {cast(void**) &ures_getStringByKey,     "ures_getStringByKey"},
-                {cast(void**) &ures_getBinary,          "ures_getBinary"},
-                {cast(void**) &ures_hasNext,            "ures_hasNext"},
-                {cast(void**) &ures_resetIterator,      "ures_resetIterator"},
-                {cast(void**) &ures_getNextString,      "ures_getNextString"},
-                {cast(void**) &ures_getKey,             "ures_getKey"},
-                {cast(void**) &ures_getType,            "ures_getType"},
-                {cast(void**) &ures_getNextResource,    "ures_getNextResource"},
-                {cast(void**) &ures_getByIndex,         "ures_getByIndex"},
-                {cast(void**) &ures_getByKey,           "ures_getByKey"},
-                ];
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static this ()
-        {
-                library = FunctionLoader.bind (icuuc, targets);
-                //test ();
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static ~this ()
-        {
-                FunctionLoader.unbind (library);
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static void test()
+        /*static void test()
         {
                 UResourceBundle b = new UResourceBundle (ULocale.Default);
                 UStringView t = b.getNextString();
                 UResourceBundle b1 = b.getNextResource ();
-        }
+        }*/
 }
 
 

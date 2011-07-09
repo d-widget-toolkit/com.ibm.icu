@@ -210,7 +210,7 @@ class USet : ICU
         
         void toPattern (UString dst, bool escape)
         {
-                uint fmt (wchar* p, uint len, inout UErrorCode e)
+                uint fmt (wchar* p, uint len, ref UErrorCode e)
                 {
                         return uset_toPattern (handle, p, len, escape, e);
                 }
@@ -395,78 +395,26 @@ class USet : ICU
 
         ***********************************************************************/
 
-        private static void* library;
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        private static extern (C) 
-        {
-                Handle function (wchar start, wchar end) uset_open;
-                void   function (Handle) uset_close;
-                Handle function (wchar* pattern, uint patternLength, uint options, inout UErrorCode e) uset_openPatternOptions;                        
-                uint   function (Handle, wchar* pattern, uint patternLength, uint options, inout UErrorCode e) uset_applyPattern;
-                uint   function (Handle, wchar* result, uint resultCapacity, byte escapeUnprintable, inout UErrorCode e) uset_toPattern;
-                void   function (Handle, wchar c) uset_add;
-                void   function (Handle, Handle additionalSet) uset_addAll;
-                void   function (Handle, wchar start, wchar end) uset_addRange;                        
-                void   function (Handle, wchar* str, uint strLen) uset_addString;
-                void   function (Handle, wchar c) uset_remove;
-                void   function (Handle, wchar start, wchar end) uset_removeRange;
-                void   function (Handle, wchar* str, uint strLen) uset_removeString;                       
-                void   function (Handle) uset_complement;
-                void   function (Handle) uset_clear;
-                byte   function (Handle) uset_isEmpty;
-                byte   function (Handle, wchar c) uset_contains;
-                byte   function (Handle, wchar start, wchar end) uset_containsRange;
-                byte   function (Handle, wchar* str, uint strLen) uset_containsString;
-                uint   function (Handle) uset_size;
-         }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static  FunctionLoader.Bind[] targets = 
-                [
-                {cast(void**) &uset_open,               "uset_open"}, 
-                {cast(void**) &uset_close,              "uset_close"},
-                {cast(void**) &uset_openPatternOptions, "uset_openPatternOptions"},
-                {cast(void**) &uset_applyPattern,       "uset_applyPattern"},
-                {cast(void**) &uset_toPattern,          "uset_toPattern"},
-                {cast(void**) &uset_add,                "uset_add"},
-                {cast(void**) &uset_addAll,             "uset_addAll"},
-                {cast(void**) &uset_addRange,           "uset_addRange"},
-                {cast(void**) &uset_addString,          "uset_addString"},
-                {cast(void**) &uset_remove,             "uset_remove"},
-                {cast(void**) &uset_removeRange,        "uset_removeRange"},
-                {cast(void**) &uset_removeString,       "uset_removeString"},
-                {cast(void**) &uset_complement,         "uset_complement"},
-                {cast(void**) &uset_clear,              "uset_clear"},
-                {cast(void**) &uset_isEmpty,            "uset_isEmpty"},
-                {cast(void**) &uset_contains,           "uset_contains"},
-                {cast(void**) &uset_containsRange,      "uset_containsRange"},
-                {cast(void**) &uset_containsString,     "uset_containsString"},
-                {cast(void**) &uset_size,               "uset_size"},
-                ];
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static this ()
-        {
-                library = FunctionLoader.bind (icuuc, targets);
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static ~this ()
-        {
-                FunctionLoader.unbind (library);
-        }
+        mixin(genICUNative!("uc"
+                ,"Handle function (wchar start, wchar end)", "uset_open"
+                ,"void   function (Handle)", "uset_close"
+                ,"Handle function (wchar* pattern, uint patternLength, uint options, ref UErrorCode e)", "uset_openPatternOptions"                        
+                ,"uint   function (Handle, wchar* pattern, uint patternLength, uint options, ref UErrorCode e)", "uset_applyPattern"
+                ,"uint   function (Handle, wchar* result, uint resultCapacity, byte escapeUnprintable, ref UErrorCode e)", "uset_toPattern"
+                ,"void   function (Handle, wchar c)", "uset_add"
+                ,"void   function (Handle, Handle additionalSet)", "uset_addAll"
+                ,"void   function (Handle, wchar start, wchar end)", "uset_addRange"                        
+                ,"void   function (Handle, wchar* str, uint strLen)", "uset_addString"
+                ,"void   function (Handle, wchar c)", "uset_remove"
+                ,"void   function (Handle, wchar start, wchar end)", "uset_removeRange"
+                ,"void   function (Handle, wchar* str, uint strLen)", "uset_removeString"                       
+                ,"void   function (Handle)", "uset_complement"
+                ,"void   function (Handle)", "uset_clear"
+                ,"byte   function (Handle)", "uset_isEmpty"
+                ,"byte   function (Handle, wchar c)", "uset_contains"
+                ,"byte   function (Handle, wchar start, wchar end)", "uset_containsRange"
+                ,"byte   function (Handle, wchar* str, uint strLen)", "uset_containsString"
+                ,"uint   function (Handle)", "uset_size"
+        ));
 }
 

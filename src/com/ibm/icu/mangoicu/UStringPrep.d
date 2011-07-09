@@ -187,7 +187,7 @@ class UStringPrep : ICU
 
         void prepare (UStringView src, UString dst, Options o = Options.Strict)
         {
-                uint fmt (wchar* p, uint len, inout UErrorCode e)
+                uint fmt (wchar* p, uint len, ref UErrorCode e)
                 {
                         return usprep_prepare (handle, src.get.ptr, src.len, p, len, o, null, e);
                 }
@@ -204,46 +204,10 @@ class UStringPrep : ICU
 
         ***********************************************************************/
 
-        private static void* library;
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        private static extern (C) 
-        {
-                Handle  function (char*, char*, inout UErrorCode) usprep_open;
-                void    function (Handle) usprep_close;
-                uint    function (Handle, wchar*, uint, wchar*, uint, uint, void*, inout UErrorCode) usprep_prepare;
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static  FunctionLoader.Bind[] targets = 
-                [
-                {cast(void**) &usprep_open,             "usprep_open"}, 
-                {cast(void**) &usprep_close,            "usprep_close"},
-                {cast(void**) &usprep_prepare,          "usprep_prepare"},
-                ];
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static this ()
-        {
-                library = FunctionLoader.bind (icuuc, targets);
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static ~this ()
-        {
-                FunctionLoader.unbind (library);
-        }
+        mixin(genICUNative!("uc"
+                ,"Handle  function (char*, char*, ref UErrorCode)", "usprep_open"
+                ,"void    function (Handle)", "usprep_close"
+                ,"uint    function (Handle, wchar*, uint, wchar*, uint, uint, void*, ref UErrorCode)", "usprep_prepare"
+        ));
 }
 

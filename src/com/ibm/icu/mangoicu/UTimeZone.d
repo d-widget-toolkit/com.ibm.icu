@@ -99,7 +99,7 @@ private import java.lang.util;
 
 struct UTimeZone 
 {
-        public CString16  name;
+        public String16  name;
 
         public static UTimeZone Default =       {null};
         public static UTimeZone Gmt =           {"Etc/GMT"};
@@ -142,16 +142,16 @@ struct UTimeZone
 
         ***********************************************************************/
 
-        static void getDefault (inout UTimeZone zone)
+        static void getDefault (ref UTimeZone zone)
         {       
-                uint format (wchar* dst, uint length, inout ICU.UErrorCode e)
+                uint format (wchar* dst, uint length, ref ICU.UErrorCode e)
                 {
                         return ucal_getDefaultTimeZone (dst, length, e);
                 }
 
                 UString s = new UString(64);
                 s.format (&format, "failed to get default time zone");
-                zone.name = s.get();
+                zone.name = cast(String16) s.get();
         }
 
         /***********************************************************************
@@ -160,7 +160,7 @@ struct UTimeZone
 
         ***********************************************************************/
 
-        static void setDefault (inout UTimeZone zone)
+        static void setDefault (ref UTimeZone zone)
         {       
                 ICU.UErrorCode e;
 
@@ -177,7 +177,7 @@ struct UTimeZone
 
         ***********************************************************************/
 
-        static uint getDSTSavings (inout UTimeZone zone)
+        static uint getDSTSavings (ref UTimeZone zone)
         {       
                 ICU.UErrorCode e;
 
@@ -193,7 +193,7 @@ struct UTimeZone
 
         **********************************************************************/
 
-        static int opApply (int delegate(inout wchar[] element) dg)
+        static int opApply (int delegate(ref wchar[] element) dg)
         {
                 ICU.UErrorCode       e;
                 wchar[]         name;
@@ -218,47 +218,10 @@ struct UTimeZone
 
         ***********************************************************************/
 
-        private static void* library;
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        private static extern (C) 
-        {
-                void* function (inout ICU.UErrorCode) ucal_openTimeZones;
-                uint  function (wchar*, uint, inout ICU.UErrorCode) ucal_getDefaultTimeZone;
-                void  function (wchar*, inout ICU.UErrorCode) ucal_setDefaultTimeZone;
-                uint  function (wchar*, inout ICU.UErrorCode) ucal_getDSTSavings;
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static  FunctionLoader.Bind[] targets = 
-                [
-                {cast(void**) &ucal_openTimeZones,      "ucal_openTimeZones"}, 
-                {cast(void**) &ucal_getDefaultTimeZone, "ucal_getDefaultTimeZone"}, 
-                {cast(void**) &ucal_setDefaultTimeZone, "ucal_setDefaultTimeZone"}, 
-                {cast(void**) &ucal_getDSTSavings,      "ucal_getDSTSavings"}, 
-                ];
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static this ()
-        {
-                library = FunctionLoader.bind (ICU.icuin, targets);
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static ~this ()
-        {
-                FunctionLoader.unbind (library);
-        }
+        mixin(/*ICU.*/genICUNative!("in"
+                ,"void* function (ref ICU.UErrorCode)", "ucal_openTimeZones"
+                ,"uint  function (wchar*, uint, ref ICU.UErrorCode)", "ucal_getDefaultTimeZone"
+                ,"void  function (wchar*, ref ICU.UErrorCode)", "ucal_setDefaultTimeZone"
+                ,"uint  function (wchar*, ref ICU.UErrorCode)", "ucal_getDSTSavings"
+        ));
 }

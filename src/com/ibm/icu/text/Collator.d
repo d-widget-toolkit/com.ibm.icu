@@ -3,7 +3,7 @@ module com.ibm.icu.text.Collator;
 import com.ibm.icu.text.CollationKey;
 
 import java.lang.all;
-//import java.util.Comparator;
+import java.util.Comparator;
 //import java.util.Locale;
 
 public class Collator : Comparator {

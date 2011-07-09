@@ -222,7 +222,7 @@ class UNormalize : ICU
 
         static void normalize (UStringView src, UString dst, Mode mode, Options o = Options.None)
         {
-                uint fmt (wchar* dst, uint len, inout UErrorCode e)
+                uint fmt (wchar* dst, uint len, ref UErrorCode e)
                 {
                         return unorm_normalize (src.get.ptr, src.len, mode, o, dst, len, e);
                 }
@@ -297,7 +297,7 @@ class UNormalize : ICU
 
         static void concatenate (UStringView left, UStringView right, UString dst, Mode mode, Options o = Options.None)
         {      
-                uint fmt (wchar* p, uint len, inout UErrorCode e)
+                uint fmt (wchar* p, uint len, ref UErrorCode e)
                 {
                         return unorm_concatenate (left.get.ptr, left.len, right.get.ptr, right.len, p, len, mode, o, e);
                 }
@@ -343,49 +343,11 @@ class UNormalize : ICU
 
         ***********************************************************************/
 
-        private static void* library;
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        private static extern (C) 
-        {
-                uint  function (wchar*, uint, uint, uint, wchar*, uint, inout UErrorCode) unorm_normalize;
-                uint  function (wchar*, uint, uint, uint, inout UErrorCode) unorm_quickCheckWithOptions;
-                byte  function (wchar*, uint, uint, uint, inout UErrorCode) unorm_isNormalizedWithOptions;
-                uint  function (wchar*, uint, wchar*, uint, wchar*, uint, uint, uint, inout UErrorCode) unorm_concatenate;
-                uint  function (wchar*, uint, wchar*, uint, uint, inout UErrorCode) unorm_compare;
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static  FunctionLoader.Bind[] targets = 
-                [
-                {cast(void**) &unorm_normalize,                 "unorm_normalize"},
-                {cast(void**) &unorm_quickCheckWithOptions,     "unorm_quickCheckWithOptions"},
-                {cast(void**) &unorm_isNormalizedWithOptions,   "unorm_isNormalizedWithOptions"},
-                {cast(void**) &unorm_concatenate,               "unorm_concatenate"},
-                {cast(void**) &unorm_compare,                   "unorm_compare"},
-                ];
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static this ()
-        {
-                library = FunctionLoader.bind (icuuc, targets);
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static ~this ()
-        {
-                FunctionLoader.unbind (library);
-        }
+        mixin(genICUNative!("uc"
+                ,"uint  function (wchar*, uint, uint, uint, wchar*, uint, ref UErrorCode)", "unorm_normalize"
+                ,"uint  function (wchar*, uint, uint, uint, ref UErrorCode)", "unorm_quickCheckWithOptions"
+                ,"byte  function (wchar*, uint, uint, uint, ref UErrorCode)", "unorm_isNormalizedWithOptions"
+                ,"uint  function (wchar*, uint, wchar*, uint, wchar*, uint, uint, uint, ref UErrorCode)", "unorm_concatenate"
+                ,"uint  function (wchar*, uint, wchar*, uint, uint, ref UErrorCode)", "unorm_compare"
+        ));
 }

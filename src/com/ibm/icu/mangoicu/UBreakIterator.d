@@ -102,7 +102,7 @@ public  import  com.ibm.icu.mangoicu.ULocale,
 //
 //         ***********************************************************************/
 //
-//         this (inout ULocale locale, UStringView text = null)
+//         this (ref ULocale locale, UStringView text = null)
 //         {
 //                 super (Type.Character, locale, text);
 //         }
@@ -133,7 +133,7 @@ public  import  com.ibm.icu.mangoicu.ULocale,
 //
 //         ***********************************************************************/
 //
-//         this (inout ULocale locale, UStringView text = null)
+//         this (ref ULocale locale, UStringView text = null)
 //         {
 //                 super (Type.Word, locale, text);
 //         }
@@ -145,7 +145,7 @@ public  import  com.ibm.icu.mangoicu.ULocale,
 //
 //         ***********************************************************************/
 //
-//         void getStatus (inout Break b)
+//         void getStatus (ref Break b)
 //         {
 //                 b = cast(Break) super.getStatus();
 //         }
@@ -170,7 +170,7 @@ public  import  com.ibm.icu.mangoicu.ULocale,
 //
 //         ***********************************************************************/
 //
-//         this (inout ULocale locale, UStringView text = null)
+//         this (ref ULocale locale, UStringView text = null)
 //         {
 //                 super (Type.Line, locale, text);
 //         }
@@ -182,7 +182,7 @@ public  import  com.ibm.icu.mangoicu.ULocale,
 //
 //         ***********************************************************************/
 //
-//         void getStatus (inout Break b)
+//         void getStatus (ref Break b)
 //         {
 //                 b = cast(Break) super.getStatus();
 //         }
@@ -207,7 +207,7 @@ public  import  com.ibm.icu.mangoicu.ULocale,
 //
 //         ***********************************************************************/
 //
-//         this (inout ULocale locale, UStringView text = null)
+//         this (ref ULocale locale, UStringView text = null)
 //         {
 //                 super (Type.Sentence, locale, text);
 //         }
@@ -219,7 +219,7 @@ public  import  com.ibm.icu.mangoicu.ULocale,
 //
 //         ***********************************************************************/
 //
-//         void getStatus (inout Break b)
+//         void getStatus (ref Break b)
 //         {
 //                 b = cast(Break) super.getStatus();
 //         }
@@ -236,7 +236,7 @@ public  import  com.ibm.icu.mangoicu.ULocale,
 //
 //         ***********************************************************************/
 //
-//         this (inout ULocale locale, UStringView text = null)
+//         this (ref ULocale locale, UStringView text = null)
 //         {
 //                 super (Type.Title, locale, text);
 //         }
@@ -520,7 +520,7 @@ struct UBreakIterator
 
         ***********************************************************************/
 
-        void getStatus (inout uint s)
+        void getStatus (ref uint s)
         {
                 s = getStatus ();
         }
@@ -553,69 +553,21 @@ struct UBreakIterator
 
         ***********************************************************************/
 
-        private static void* library;
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        private static extern (C)
-        {
-                Handle function (uint, char*, wchar*, uint, inout ICU.UErrorCode) ubrk_open;
-                Handle function (wchar*, uint, wchar*, uint, void*, inout ICU.UErrorCode) ubrk_openRules;
-                void   function (Handle) ubrk_close;
-                void   function (Handle, wchar*, uint, inout ICU.UErrorCode) ubrk_setText;
-                uint   function (Handle) ubrk_current;
-                uint   function (Handle) ubrk_next;
-                uint   function (Handle) ubrk_previous;
-                uint   function (Handle) ubrk_first;
-                uint   function (Handle) ubrk_last;
-                uint   function (Handle, uint) ubrk_preceding;
-                uint   function (Handle, uint) ubrk_following;
-                byte   function (Handle, uint) ubrk_isBoundary;
-                uint   function (Handle) ubrk_getRuleStatus;
-                Handle function (Handle, void *, int *, inout ICU.UErrorCode) ubrk_safeClone;
-                void   function (Handle, UText*, inout ICU.UErrorCode) ubrk_setUText;
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static FunctionLoader.Bind[] targets =
-                [
-                {cast(void**) &ubrk_open,               "ubrk_open"},
-                {cast(void**) &ubrk_close,              "ubrk_close"},
-                {cast(void**) &ubrk_openRules,          "ubrk_openRules"},
-                {cast(void**) &ubrk_setText,            "ubrk_setText"},
-                {cast(void**) &ubrk_current,            "ubrk_current"},
-                {cast(void**) &ubrk_next,               "ubrk_next"},
-                {cast(void**) &ubrk_previous,           "ubrk_previous"},
-                {cast(void**) &ubrk_first,              "ubrk_first"},
-                {cast(void**) &ubrk_last,               "ubrk_last"},
-                {cast(void**) &ubrk_preceding,          "ubrk_preceding"},
-                {cast(void**) &ubrk_following,          "ubrk_following"},
-                {cast(void**) &ubrk_isBoundary,         "ubrk_isBoundary"},
-                {cast(void**) &ubrk_getRuleStatus,      "ubrk_getRuleStatus"},
-                {cast(void**) &ubrk_setUText,           "ubrk_setUText"},
-                {cast(void**) &ubrk_safeClone,          "ubrk_safeClone"},
-                ];
-
-         /**********************************************************************
-
-         **********************************************************************/
-
-         static this ()
-         {
-                library = FunctionLoader.bind (ICU.icuuc, targets);
-         }
-
-         /**********************************************************************
-
-         **********************************************************************/
-
-         static ~this ()
-         {
-               FunctionLoader.unbind (library);
-         }
+        mixin(/*ICU.*/genICUNative!("uc"
+                ,"Handle function (uint, char*, wchar*, uint, ref ICU.UErrorCode)", "ubrk_open"
+                ,"Handle function (wchar*, uint, wchar*, uint, void*, ref ICU.UErrorCode)", "ubrk_openRules"
+                ,"void   function (Handle)", "ubrk_close"
+                ,"void   function (Handle, wchar*, uint, ref ICU.UErrorCode)", "ubrk_setText"
+                ,"uint   function (Handle)", "ubrk_current"
+                ,"uint   function (Handle)", "ubrk_next"
+                ,"uint   function (Handle)", "ubrk_previous"
+                ,"uint   function (Handle)", "ubrk_first"
+                ,"uint   function (Handle)", "ubrk_last"
+                ,"uint   function (Handle, uint)", "ubrk_preceding"
+                ,"uint   function (Handle, uint)", "ubrk_following"
+                ,"byte   function (Handle, uint)", "ubrk_isBoundary"
+                ,"uint   function (Handle)", "ubrk_getRuleStatus"
+                ,"Handle function (Handle, void *, int *, ref ICU.UErrorCode)", "ubrk_safeClone"
+                ,"void   function (Handle, UText*, ref ICU.UErrorCode)", "ubrk_setUText"
+        ));
 }

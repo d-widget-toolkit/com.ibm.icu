@@ -153,7 +153,7 @@ class UDomainName : ICU
 
         void toAscii (UString dst, Options o = Options.Strict)
         {
-                uint fmt (wchar* p, uint len, inout UErrorCode e)
+                uint fmt (wchar* p, uint len, ref UErrorCode e)
                 {
                         return uidna_toASCII (text.get.ptr, text.len, p, len, o, null, e);
                 }
@@ -176,7 +176,7 @@ class UDomainName : ICU
 
         void toUnicode (UString dst, Options o = Options.Strict)
         {
-                uint fmt (wchar* p, uint len, inout UErrorCode e)
+                uint fmt (wchar* p, uint len, ref UErrorCode e)
                 {
                         return uidna_toUnicode (text.get.ptr, text.len, p, len, o, null, e);
                 }
@@ -207,7 +207,7 @@ class UDomainName : ICU
 
         void IdnToAscii (UString dst, Options o = Options.Strict)
         {
-                uint fmt (wchar* p, uint len, inout UErrorCode e)
+                uint fmt (wchar* p, uint len, ref UErrorCode e)
                 {
                         return uidna_IDNToASCII (text.get.ptr, text.len, p, len, o, null, e);
                 }
@@ -234,7 +234,7 @@ class UDomainName : ICU
 
         void IdnToUnicode (UString dst, Options o = Options.Strict)
         {
-                uint fmt (wchar* p, uint len, inout UErrorCode e)
+                uint fmt (wchar* p, uint len, ref UErrorCode e)
                 {
                         return uidna_IDNToUnicode (text.get.ptr, text.len, p, len, o, null, e);
                 }
@@ -273,50 +273,12 @@ class UDomainName : ICU
 
         ***********************************************************************/
 
-        private static void* library;
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        private static extern (C) 
-        {
-                uint    function (wchar*, uint, wchar*, uint, uint, void*, inout UErrorCode) uidna_toASCII;
-                uint    function (wchar*, uint, wchar*, uint, uint, void*, inout UErrorCode) uidna_toUnicode;
-                uint    function (wchar*, uint, wchar*, uint, uint, void*, inout UErrorCode) uidna_IDNToASCII;
-                uint    function (wchar*, uint, wchar*, uint, uint, void*, inout UErrorCode) uidna_IDNToUnicode;
-                int     function (wchar*, uint, wchar*, uint, uint, inout UErrorCode) uidna_compare;
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static  FunctionLoader.Bind[] targets = 
-                [
-                {cast(void**) &uidna_toASCII,           "uidna_toASCII"}, 
-                {cast(void**) &uidna_toUnicode,         "uidna_toUnicode"},
-                {cast(void**) &uidna_IDNToASCII,        "uidna_IDNToASCII"},
-                {cast(void**) &uidna_IDNToUnicode,      "uidna_IDNToUnicode"},
-                {cast(void**) &uidna_compare,           "uidna_compare"},
-                ];
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static this ()
-        {
-                library = FunctionLoader.bind (icuuc, targets);
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static ~this ()
-        {
-                FunctionLoader.unbind (library);
-        }
+        mixin(genICUNative!("uc"
+                ,"uint    function (wchar*, uint, wchar*, uint, uint, void*, ref UErrorCode)", "uidna_toASCII"
+                ,"uint    function (wchar*, uint, wchar*, uint, uint, void*, ref UErrorCode)", "uidna_toUnicode"
+                ,"uint    function (wchar*, uint, wchar*, uint, uint, void*, ref UErrorCode)", "uidna_IDNToASCII"
+                ,"uint    function (wchar*, uint, wchar*, uint, uint, void*, ref UErrorCode)", "uidna_IDNToUnicode"
+                ,"int     function (wchar*, uint, wchar*, uint, uint, ref UErrorCode)", "uidna_compare"
+        ));
 }
 

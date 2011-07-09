@@ -10,7 +10,7 @@ public class MessageFormat {
     private UMessageFormat frm;
 
     public this(String pattern ) {
-        frm = new UMessageFormat( pattern.toWCharArray() );
+        frm = new UMessageFormat( Unqual(pattern.toWCharArray()) );
     }
 
     public static String format(String format, Object[] args) {

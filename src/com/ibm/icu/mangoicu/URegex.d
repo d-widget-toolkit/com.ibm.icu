@@ -360,7 +360,7 @@ class URegex : Groups
 
         void group (UString s, uint index)
         {       
-                uint fmt (wchar* dst, uint length, inout UErrorCode e)
+                uint fmt (wchar* dst, uint length, ref UErrorCode e)
                 {
                         return uregex_group (handle, index, dst, length, e);
                 }
@@ -626,75 +626,24 @@ class URegex : Groups
         
         ***********************************************************************/
               
-        private static void* library;
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        private static extern (C) 
-        {
-                Handle  function (wchar*, uint, uint, ParseError*, inout UErrorCode) uregex_open;
-                void    function (Handle) uregex_close;
-                Handle  function (Handle, inout UErrorCode) uregex_clone;
-                wchar*  function (Handle, inout uint, inout UErrorCode) uregex_pattern;
-                uint    function (Handle, inout UErrorCode) uregex_flags;
-                void    function (Handle, wchar*, uint, inout UErrorCode) uregex_setText;
-                wchar*  function (Handle, inout uint, inout UErrorCode) uregex_getText;
-                uint    function (Handle, uint, wchar*, uint, inout UErrorCode) uregex_group;
-                uint    function (Handle, inout UErrorCode) uregex_groupCount;
-                uint    function (Handle, uint, inout UErrorCode) uregex_start;
-                uint    function (Handle, uint, inout UErrorCode) uregex_end;
-                void    function (Handle, uint, inout UErrorCode) uregex_reset;
-                bool    function (Handle, uint, inout UErrorCode) uregex_matches;
-                bool    function (Handle, uint, inout UErrorCode) uregex_lookingAt;
-                bool    function (Handle, uint, inout UErrorCode) uregex_find;
-                bool    function (Handle, inout UErrorCode) uregex_findNext;
-                uint    function (Handle, wchar*, uint, wchar*, uint, inout UErrorCode) uregex_replaceAll;
-                uint    function (Handle, wchar*, uint, wchar*, uint, inout UErrorCode) uregex_replaceFirst;
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static  FunctionLoader.Bind[] targets = 
-                [
-                {cast(void**) &uregex_open,             "uregex_open"}, 
-                {cast(void**) &uregex_close,            "uregex_close"},
-                {cast(void**) &uregex_clone,            "uregex_clone"},
-                {cast(void**) &uregex_pattern,          "uregex_pattern"},
-                {cast(void**) &uregex_flags,            "uregex_flags"},
-                {cast(void**) &uregex_setText,          "uregex_setText"},
-                {cast(void**) &uregex_getText,          "uregex_getText"},
-                {cast(void**) &uregex_group,            "uregex_group"},
-                {cast(void**) &uregex_groupCount,       "uregex_groupCount"},
-                {cast(void**) &uregex_start,            "uregex_start"},
-                {cast(void**) &uregex_end,              "uregex_end"},
-                {cast(void**) &uregex_reset,            "uregex_reset"},
-                {cast(void**) &uregex_matches,          "uregex_matches"},
-                {cast(void**) &uregex_lookingAt,        "uregex_lookingAt"},
-                {cast(void**) &uregex_find,             "uregex_find"},
-                {cast(void**) &uregex_findNext,         "uregex_findNext"},
-                {cast(void**) &uregex_replaceAll,       "uregex_replaceAll"},
-                {cast(void**) &uregex_replaceFirst,     "uregex_replaceFirst"},
-                ];
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static this ()
-        {
-                library = FunctionLoader.bind (icuin, targets);
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static ~this ()
-        {
-                FunctionLoader.unbind (library);
-        }
+        mixin(genICUNative!("in"
+                ,"Handle  function (wchar*, uint, uint, ParseError*, ref UErrorCode)", "uregex_open"
+                ,"void    function (Handle)", "uregex_close"
+                ,"Handle  function (Handle, ref UErrorCode)", "uregex_clone"
+                ,"wchar*  function (Handle, ref uint, ref UErrorCode)", "uregex_pattern"
+                ,"uint    function (Handle, ref UErrorCode)", "uregex_flags"
+                ,"void    function (Handle, wchar*, uint, ref UErrorCode)", "uregex_setText"
+                ,"wchar*  function (Handle, ref uint, ref UErrorCode)", "uregex_getText"
+                ,"uint    function (Handle, uint, wchar*, uint, ref UErrorCode)", "uregex_group"
+                ,"uint    function (Handle, ref UErrorCode)", "uregex_groupCount"
+                ,"uint    function (Handle, uint, ref UErrorCode)", "uregex_start"
+                ,"uint    function (Handle, uint, ref UErrorCode)", "uregex_end"
+                ,"void    function (Handle, uint, ref UErrorCode)", "uregex_reset"
+                ,"bool    function (Handle, uint, ref UErrorCode)", "uregex_matches"
+                ,"bool    function (Handle, uint, ref UErrorCode)", "uregex_lookingAt"
+                ,"bool    function (Handle, uint, ref UErrorCode)", "uregex_find"
+                ,"bool    function (Handle, ref UErrorCode)", "uregex_findNext"
+                ,"uint    function (Handle, wchar*, uint, wchar*, uint, ref UErrorCode)", "uregex_replaceAll"
+                ,"uint    function (Handle, wchar*, uint, wchar*, uint, ref UErrorCode)", "uregex_replaceFirst"
+        ));
 }

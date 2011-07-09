@@ -2,7 +2,7 @@
 module com.ibm.icu.text.BreakIterator;
 
 import com.ibm.icu.mangoicu.UBreakIterator;
-import tango.core.Thread;
+version(Tango) import tango.core.Thread;
 
 import java.lang.all;
 import java.text.CharacterIterator;
@@ -13,24 +13,35 @@ public class BreakIterator {
     public static const int Done = UBreakIterator.DONE;
 
     private UBreakIterator it;
-    private static tango.core.Thread.ThreadLocal!(BreakIterator) instLine;
-    private static tango.core.Thread.ThreadLocal!(BreakIterator) instWord;
+    version(Tango){
+        private static tango.core.Thread.ThreadLocal!(BreakIterator) instLine, instWord;
+    } else { // Phobos
+        private static BreakIterator instLine, instWord; //in tls
+    }
 
     private this( UBreakIterator it ){
         this.it = it;
     }
     public static BreakIterator getLineInstance() {
-        auto res = instLine.val();
-        if( res is null ){
-            res = new BreakIterator(
-                UBreakIterator.openLineIterator( ULocale.Default ));
-            instLine.val( res );
+        version(Tango){
+            auto res = instLine.val();
+            if( res is null ){
+                res = new BreakIterator(
+                    UBreakIterator.openLineIterator( ULocale.Default ));
+                instLine.val( res );
+            }
+            return res;
+        } else { // Phobos
+            if( instLine is null ){
+                instLine = new BreakIterator(
+                    UBreakIterator.openLineIterator( ULocale.Default ));
+            }
+            return instLine;
         }
-        return res;
     }
 
     public void setText(String line) {
-        it.setText(line);
+        it.setText(Unqual(line));
     }
 
     public int following(int currOffset) {
@@ -42,13 +53,21 @@ public class BreakIterator {
     }
 
     public static BreakIterator getWordInstance() {
-        auto res = instWord.val();
-        if( res is null ){
-            res = new BreakIterator(
-                UBreakIterator.openWordIterator( ULocale.Default ));
-            instWord.val( res );
+        version(Tango){
+            auto res = instWord.val();
+            if( res is null ){
+                res = new BreakIterator(
+                    UBreakIterator.openWordIterator( ULocale.Default ));
+                instWord.val( res );
+            }
+            return res;
+        } else { // Phobos
+            if( instWord is null ){
+                instWord = new BreakIterator(
+                    UBreakIterator.openLineIterator( ULocale.Default ));
+            }
+            return instWord;
         }
-        return res;
     }
 
     public int preceding(int position) {

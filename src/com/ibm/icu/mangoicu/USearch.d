@@ -205,7 +205,7 @@ class USearch : ICU
 
         ***********************************************************************/
 
-        this (UStringView pattern, UStringView text, inout ULocale locale, UBreakIterator* iterator = null)
+        this (UStringView pattern, UStringView text, ref ULocale locale, UBreakIterator* iterator = null)
         {
                 UErrorCode e;
 
@@ -300,7 +300,7 @@ class USearch : ICU
 
         void getMatchedText (UString s)
         {
-                uint fmt (wchar* dst, uint length, inout UErrorCode e)
+                uint fmt (wchar* dst, uint length, ref UErrorCode e)
                 {
                         return usearch_getMatchedText (handle, dst, length, e);
                 }
@@ -525,83 +525,28 @@ class USearch : ICU
 
         ***********************************************************************/
 
-        private static void* library;
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        private static extern (C)
-        {
-                Handle  function (wchar*, uint, wchar*, uint, char*, void*, inout UErrorCode) usearch_open;
-                Handle  function (wchar*, uint, wchar*, uint, Handle, void*, inout UErrorCode) usearch_openFromCollator;
-                void    function (Handle) usearch_close;
-                void    function (Handle, uint, inout UErrorCode) usearch_setOffset;
-                uint    function (Handle) usearch_getOffset;
-                uint    function (Handle) usearch_getMatchedStart;
-                uint    function (Handle) usearch_getMatchedLength;
-                uint    function (Handle, wchar*, uint, inout UErrorCode) usearch_getMatchedText;
-                void    function (Handle, wchar*, uint, inout UErrorCode) usearch_setText;
-                wchar*  function (Handle, uint*) usearch_getText;
-                void    function (Handle, wchar*, uint, inout UErrorCode) usearch_setPattern;
-                wchar*  function (Handle, uint*) usearch_getPattern;
-                uint    function (Handle, inout UErrorCode) usearch_first;
-                uint    function (Handle, inout UErrorCode) usearch_last;
-                uint    function (Handle, inout UErrorCode) usearch_next;
-                uint    function (Handle, inout UErrorCode) usearch_previous;
-                uint    function (Handle, uint, inout UErrorCode) usearch_following;
-                uint    function (Handle, uint, inout UErrorCode) usearch_preceding;
-                void    function (Handle) usearch_reset;
-                void    function (Handle, Handle, inout UErrorCode) usearch_setBreakIterator;
-                Handle  function (Handle) usearch_getCollator;
-                void    function (Handle, Handle, inout UErrorCode) usearch_setCollator;
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static  FunctionLoader.Bind[] targets =
-                [
-                {cast(void**) &usearch_open,             "usearch_open"},
-                {cast(void**) &usearch_openFromCollator, "usearch_openFromCollator"},
-                {cast(void**) &usearch_close,            "usearch_close"},
-                {cast(void**) &usearch_setOffset,        "usearch_setOffset"},
-                {cast(void**) &usearch_getOffset,        "usearch_getOffset"},
-                {cast(void**) &usearch_getMatchedStart,  "usearch_getMatchedStart"},
-                {cast(void**) &usearch_getMatchedLength, "usearch_getMatchedLength"},
-                {cast(void**) &usearch_getMatchedText,   "usearch_getMatchedText"},
-                {cast(void**) &usearch_setText,          "usearch_setText"},
-                {cast(void**) &usearch_getText,          "usearch_getText"},
-                {cast(void**) &usearch_setPattern,       "usearch_setPattern"},
-                {cast(void**) &usearch_getPattern,       "usearch_getPattern"},
-                {cast(void**) &usearch_first,            "usearch_first"},
-                {cast(void**) &usearch_last,             "usearch_last"},
-                {cast(void**) &usearch_next,             "usearch_next"},
-                {cast(void**) &usearch_previous,         "usearch_previous"},
-                {cast(void**) &usearch_following,        "usearch_following"},
-                {cast(void**) &usearch_preceding,        "usearch_preceding"},
-                {cast(void**) &usearch_reset,            "usearch_reset"},
-                {cast(void**) &usearch_setBreakIterator, "usearch_setBreakIterator"},
-                {cast(void**) &usearch_getCollator,      "usearch_getCollator"},
-                {cast(void**) &usearch_setCollator,      "usearch_setCollator"},
-                ];
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static this ()
-        {
-                library = FunctionLoader.bind (icuin, targets);
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static ~this ()
-        {
-                FunctionLoader.unbind (library);
-        }
+        mixin(genICUNative!("in"
+                ,"Handle  function (wchar*, uint, wchar*, uint, char*, void*, ref UErrorCode)", "usearch_open"
+                ,"Handle  function (wchar*, uint, wchar*, uint, Handle, void*, ref UErrorCode)", "usearch_openFromCollator"
+                ,"void    function (Handle)", "usearch_close"
+                ,"void    function (Handle, uint, ref UErrorCode)", "usearch_setOffset"
+                ,"uint    function (Handle)", "usearch_getOffset"
+                ,"uint    function (Handle)", "usearch_getMatchedStart"
+                ,"uint    function (Handle)", "usearch_getMatchedLength"
+                ,"uint    function (Handle, wchar*, uint, ref UErrorCode)", "usearch_getMatchedText"
+                ,"void    function (Handle, wchar*, uint, ref UErrorCode)", "usearch_setText"
+                ,"wchar*  function (Handle, uint*)", "usearch_getText"
+                ,"void    function (Handle, wchar*, uint, ref UErrorCode)", "usearch_setPattern"
+                ,"wchar*  function (Handle, uint*)", "usearch_getPattern"
+                ,"uint    function (Handle, ref UErrorCode)", "usearch_first"
+                ,"uint    function (Handle, ref UErrorCode)", "usearch_last"
+                ,"uint    function (Handle, ref UErrorCode)", "usearch_next"
+                ,"uint    function (Handle, ref UErrorCode)", "usearch_previous"
+                ,"uint    function (Handle, uint, ref UErrorCode)", "usearch_following"
+                ,"uint    function (Handle, uint, ref UErrorCode)", "usearch_preceding"
+                ,"void    function (Handle)", "usearch_reset"
+                ,"void    function (Handle, Handle, ref UErrorCode)", "usearch_setBreakIterator"
+                ,"Handle  function (Handle)", "usearch_getCollator"
+                ,"void    function (Handle, Handle, ref UErrorCode)", "usearch_setCollator"
+        ));
 }

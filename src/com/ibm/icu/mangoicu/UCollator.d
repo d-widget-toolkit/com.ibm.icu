@@ -88,6 +88,7 @@ private import  com.ibm.icu.mangoicu.ICU,
                 com.ibm.icu.mangoicu.USet,
                 com.ibm.icu.mangoicu.ULocale,
                 com.ibm.icu.mangoicu.UString;
+private import java.lang.util;
 
 /*******************************************************************************
 
@@ -350,7 +351,7 @@ class UCollator : ICU
 
         void getDisplayName (ULocale obj, ULocale display, UString dst)
         {
-                uint fmt (wchar* p, uint len, inout UErrorCode e)
+                uint fmt (wchar* p, uint len, ref UErrorCode e)
                 {
                         return ucol_getDisplayName (toString(obj.name), toString(display.name), dst.get.ptr, dst.len, e);
                 }
@@ -367,7 +368,7 @@ class UCollator : ICU
 
         void getRules (UString dst, RuleOption o = RuleOption.FullRules)
         {
-                uint fmt (wchar* p, uint len, inout UErrorCode e)
+                uint fmt (wchar* p, uint len, ref UErrorCode e)
                 {
                         uint needed = ucol_getRulesEx (handle, o, dst.get.ptr, dst.len);
                         if (needed > len)
@@ -503,7 +504,7 @@ class UCollator : ICU
 
         ***********************************************************************/
 
-        void getVersion (inout Version v)
+        void getVersion (ref Version v)
         {
                 ucol_getVersion (handle, v);
         }
@@ -514,7 +515,7 @@ class UCollator : ICU
 
         ***********************************************************************/
 
-        void getUCAVersion (inout Version v)
+        void getUCAVersion (ref Version v)
         {
                 ucol_getUCAVersion (handle, v);
         }
@@ -609,7 +610,7 @@ class UCollator : ICU
         {
                 UErrorCode e;
 
-                locale.name = toArray (ucol_getLocaleByType (handle, type, e));
+                locale.name = cast(String) toArray (ucol_getLocaleByType (handle, type, e));
                 if (isError(e) || locale.name is null)
                     exception ("failed to get collator locale");
         }
@@ -639,94 +640,34 @@ class UCollator : ICU
 
         ***********************************************************************/
 
-        private static void* library;
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        private static extern (C)
-        {
-                void            function (Handle) ucol_close;
-                Handle          function (char *loc, inout UErrorCode e) ucol_open;
-                Handle          function (wchar* rules, uint rulesLength, AttributeValue normalizationMode, Strength strength, UParseError *parseError, inout UErrorCode e) ucol_openRules;
-                Handle          function (char *definition, byte forceDefaults, UParseError *parseError, inout UErrorCode e) ucol_openFromShortString;
-                uint            function (Handle, Handle conts, inout UErrorCode e) ucol_getContractions;
-                int             function (Handle, wchar* source, uint sourceLength, wchar* target, uint targetLength) ucol_strcoll;
-                byte            function (Handle, wchar* source, uint sourceLength, wchar* target, uint targetLength) ucol_greater;
-                byte            function (Handle, wchar* source, uint sourceLength, wchar* target, uint targetLength) ucol_greaterOrEqual;
-                byte            function (Handle, wchar* source, uint sourceLength, wchar* target, uint targetLength) ucol_equal;
-                Strength        function (Handle) ucol_getStrength;
-                void            function (Handle, Strength strength) ucol_setStrength;
-                uint            function (char *objLoc, char *dispLoc, wchar* result, uint resultLength, inout UErrorCode e) ucol_getDisplayName;
-                uint            function (Handle, char *locale, char *buffer, uint capacity, inout UErrorCode e) ucol_getShortDefinitionString;
-                uint            function (char *source, char *destination, uint capacity, UParseError *parseError, inout UErrorCode e) ucol_normalizeShortDefinitionString;
-                uint            function (Handle, wchar* source, uint sourceLength, ubyte *result, uint resultLength) ucol_getSortKey;
-                uint            function (ubyte *source, uint sourceLength, BoundMode boundType, uint noOfLevels, ubyte *result, uint resultLength, inout UErrorCode e) ucol_getBound;
-                void            function (Handle, Version info) ucol_getVersion;
-                void            function (Handle, Version info) ucol_getUCAVersion;
-                uint            function (ubyte *src1, uint src1Length, ubyte *src2, uint src2Length, ubyte *dest, uint destCapacity) ucol_mergeSortkeys;
-                void            function (Handle, Attribute attr, AttributeValue value, inout UErrorCode e) ucol_setAttribute;
-                AttributeValue  function (Handle, Attribute attr, inout UErrorCode e) ucol_getAttribute;
-                uint            function (Handle, wchar* varTop, uint len, inout UErrorCode e) ucol_setVariableTop;
-                uint            function (Handle, inout UErrorCode e) ucol_getVariableTop;
-                void            function (Handle, uint varTop, inout UErrorCode e) ucol_restoreVariableTop;
-                uint            function (Handle, RuleOption delta, wchar* buffer, uint bufferLen) ucol_getRulesEx;
-                char*           function (Handle, ULocale.Type type, inout UErrorCode e) ucol_getLocaleByType;
-                Handle          function (Handle, inout UErrorCode e) ucol_getTailoredSet;
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static  FunctionLoader.Bind[] targets =
-                [
-                {cast(void**) &ucol_open,                               "ucol_open"},
-                {cast(void**) &ucol_close,                              "ucol_close"},
-                {cast(void**) &ucol_openRules,                          "ucol_openRules"},
-                {cast(void**) &ucol_openFromShortString,                "ucol_openFromShortString"},
-                {cast(void**) &ucol_getContractions,                    "ucol_getContractions"},
-                {cast(void**) &ucol_strcoll,                            "ucol_strcoll"},
-                {cast(void**) &ucol_greater,                            "ucol_greater"},
-                {cast(void**) &ucol_greaterOrEqual,                     "ucol_greaterOrEqual"},
-                {cast(void**) &ucol_equal,                              "ucol_equal"},
-                {cast(void**) &ucol_getStrength,                        "ucol_getStrength"},
-                {cast(void**) &ucol_setStrength,                        "ucol_setStrength"},
-                {cast(void**) &ucol_getDisplayName,                     "ucol_getDisplayName"},
-                {cast(void**) &ucol_getShortDefinitionString,           "ucol_getShortDefinitionString"},
-                {cast(void**) &ucol_normalizeShortDefinitionString,     "ucol_normalizeShortDefinitionString"},
-                {cast(void**) &ucol_getSortKey,                         "ucol_getSortKey"},
-                {cast(void**) &ucol_getBound,                           "ucol_getBound"},
-                {cast(void**) &ucol_getVersion,                         "ucol_getVersion"},
-                {cast(void**) &ucol_getUCAVersion,                      "ucol_getUCAVersion"},
-                {cast(void**) &ucol_mergeSortkeys,                      "ucol_mergeSortkeys"},
-                {cast(void**) &ucol_setAttribute,                       "ucol_setAttribute"},
-                {cast(void**) &ucol_getAttribute,                       "ucol_getAttribute"},
-                {cast(void**) &ucol_setVariableTop,                     "ucol_setVariableTop"},
-                {cast(void**) &ucol_getVariableTop,                     "ucol_getVariableTop"},
-                {cast(void**) &ucol_restoreVariableTop,                 "ucol_restoreVariableTop"},
-                {cast(void**) &ucol_getRulesEx,                         "ucol_getRulesEx"},
-                {cast(void**) &ucol_getLocaleByType,                    "ucol_getLocaleByType"},
-                {cast(void**) &ucol_getTailoredSet,                     "ucol_getTailoredSet"},
-                ];
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static this ()
-        {
-                library = FunctionLoader.bind (icuin, targets);
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static ~this ()
-        {
-                FunctionLoader.unbind (library);
-        }
+        mixin(genICUNative!("in"
+                ,"void            function (Handle)", "ucol_close"
+                ,"Handle          function (char *loc, ref UErrorCode e)", "ucol_open"
+                ,"Handle          function (wchar* rules, uint rulesLength, AttributeValue normalizationMode, Strength strength, UParseError *parseError, ref UErrorCode e)", "ucol_openRules"
+                ,"Handle          function (char *definition, byte forceDefaults, UParseError *parseError, ref UErrorCode e)", "ucol_openFromShortString"
+                ,"uint            function (Handle, Handle conts, ref UErrorCode e)", "ucol_getContractions"
+                ,"int             function (Handle, wchar* source, uint sourceLength, wchar* target, uint targetLength)", "ucol_strcoll"
+                ,"byte            function (Handle, wchar* source, uint sourceLength, wchar* target, uint targetLength)", "ucol_greater"
+                ,"byte            function (Handle, wchar* source, uint sourceLength, wchar* target, uint targetLength)", "ucol_greaterOrEqual"
+                ,"byte            function (Handle, wchar* source, uint sourceLength, wchar* target, uint targetLength)", "ucol_equal"
+                ,"Strength        function (Handle)", "ucol_getStrength"
+                ,"void            function (Handle, Strength strength)", "ucol_setStrength"
+                ,"uint            function (char *objLoc, char *dispLoc, wchar* result, uint resultLength, ref UErrorCode e)", "ucol_getDisplayName"
+                ,"uint            function (Handle, char *locale, char *buffer, uint capacity, ref UErrorCode e)", "ucol_getShortDefinitionString"
+                ,"uint            function (char *source, char *destination, uint capacity, UParseError *parseError, ref UErrorCode e)", "ucol_normalizeShortDefinitionString"
+                ,"uint            function (Handle, wchar* source, uint sourceLength, ubyte *result, uint resultLength)", "ucol_getSortKey"
+                ,"uint            function (ubyte *source, uint sourceLength, BoundMode boundType, uint noOfLevels, ubyte *result, uint resultLength, ref UErrorCode e)", "ucol_getBound"
+                ,"void            function (Handle, Version info)", "ucol_getVersion"
+                ,"void            function (Handle, Version info)", "ucol_getUCAVersion"
+                ,"uint            function (ubyte *src1, uint src1Length, ubyte *src2, uint src2Length, ubyte *dest, uint destCapacity)", "ucol_mergeSortkeys"
+                ,"void            function (Handle, Attribute attr, AttributeValue value, ref UErrorCode e)", "ucol_setAttribute"
+                ,"AttributeValue  function (Handle, Attribute attr, ref UErrorCode e)", "ucol_getAttribute"
+                ,"uint            function (Handle, wchar* varTop, uint len, ref UErrorCode e)", "ucol_setVariableTop"
+                ,"uint            function (Handle, ref UErrorCode e)", "ucol_getVariableTop"
+                ,"void            function (Handle, uint varTop, ref UErrorCode e)", "ucol_restoreVariableTop"
+                ,"uint            function (Handle, RuleOption delta, wchar* buffer, uint bufferLen)", "ucol_getRulesEx"
+                ,"char*           function (Handle, ULocale.Type type, ref UErrorCode e)", "ucol_getLocaleByType"
+                ,"Handle          function (Handle, ref UErrorCode e)", "ucol_getTailoredSet"
+        ));
 }
 

@@ -181,7 +181,7 @@ class UString : UStringView, IStringOther
 
         ***********************************************************************/
 
-        this (CString16 content, bool mutable = true)
+        this (in wchar[] content, bool mutable = true)
         {
                 setTo (content, mutable);
         }
@@ -386,6 +386,18 @@ class UString : UStringView, IStringOther
 
         /***********************************************************************
 
+                Append a single UTF32 unit to this UString
+
+        ***********************************************************************/
+
+        UString opCat (dchar chr)
+        {
+                dchar[1] chars = chr;
+                return opCat (chars);
+        }
+
+        /***********************************************************************
+
                 Append text to this UString
 
         ***********************************************************************/
@@ -403,7 +415,7 @@ class UString : UStringView, IStringOther
 
         UString opCat (char[] chars)
         {
-                uint fmt (wchar* dst, uint len, inout UErrorCode e)
+                uint fmt (wchar* dst, uint len, ref UErrorCode e)
                 {
                         uint x;
 
@@ -413,6 +425,26 @@ class UString : UStringView, IStringOther
 
                 expand (chars.length);
                 return format (&fmt, "failed to append UTF char[]");
+        }
+
+        /***********************************************************************
+
+                Converts a sequence of UTF32 units to UChars (UTF-16)
+
+        ***********************************************************************/
+
+        UString opCat (dchar[] chars)
+        {
+                uint fmt (wchar* dst, uint len, ref UErrorCode e)
+                {
+                        uint x;
+
+                        u_strFromUTF32 (dst, len, &x, chars.ptr, chars.length, e);
+                        return x;
+                }
+
+                expand (chars.length);
+                return format (&fmt, "failed to append UTF dchar[]");
         }
 
         /***********************************************************************
@@ -439,7 +471,7 @@ class UString : UStringView, IStringOther
 
         ***********************************************************************/
 
-        UString setTo (CString16 chars, bool mutable = true)
+        UString setTo (in wchar[] chars, bool mutable = true)
         {
                 len = chars.length;
                 if ((this.mutable = mutable) == true)
@@ -621,9 +653,9 @@ class UString : UStringView, IStringOther
 
         ***********************************************************************/
 
-        typedef uint delegate (wchar* dst, uint len, inout UErrorCode e) Formatter;
+        typedef uint delegate (wchar* dst, uint len, ref UErrorCode e) Formatter;
 
-        package final UString format (Formatter format, CString msg)
+        package final UString format (Formatter format, String msg)
         {
                 UErrorCode   e;
                 uint    length;
@@ -1101,9 +1133,9 @@ class UStringView : ICU, ITextOther
 
         ***********************************************************************/
 
-        final UString toLower (UString dst, inout ULocale locale)
+        final UString toLower (UString dst, ref ULocale locale)
         {
-                uint lower (wchar* dst, uint length, inout UErrorCode e)
+                uint lower (wchar* dst, uint length, ref UErrorCode e)
                 {
                         return u_strToLower (dst, length, content.ptr, len, ICU.toString(locale.name), e);
                 }
@@ -1141,9 +1173,9 @@ class UStringView : ICU, ITextOther
 
         ***********************************************************************/
 
-        final UString toUpper (UString dst, inout ULocale locale)
+        final UString toUpper (UString dst, ref ULocale locale)
         {
-                uint upper (wchar* dst, uint length, inout UErrorCode e)
+                uint upper (wchar* dst, uint length, ref UErrorCode e)
                 {
                         return u_strToUpper (dst, length, content.ptr, len, ICU.toString(locale.name), e);
                 }
@@ -1169,7 +1201,7 @@ class UStringView : ICU, ITextOther
 
         final UString toFolded (UString dst, CaseOption option = CaseOption.Default)
         {
-                uint fold (wchar* dst, uint length, inout UErrorCode e)
+                uint fold (wchar* dst, uint length, ref UErrorCode e)
                 {
                         return u_strFoldCase (dst, length, content.ptr, len, option, e);
                 }
@@ -1381,7 +1413,7 @@ class UStringView : ICU, ITextOther
 
         ***********************************************************************/
 
-        final private void pinIndex (inout uint x)
+        final private void pinIndex (ref uint x)
         {
                 if (x > len)
                     x = len;
@@ -1393,7 +1425,7 @@ class UStringView : ICU, ITextOther
 
         ***********************************************************************/
 
-        final private void pinIndices (inout uint start, inout uint length)
+        final private void pinIndices (ref uint start, ref uint length)
         {
                 if (start > len)
                     start = len;
@@ -1426,68 +1458,22 @@ class UStringView : ICU, ITextOther
 
         ***********************************************************************/
 
-        private static void* library;
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        private static extern (C)
-        {
-                wchar* function (wchar*, uint, wchar*, uint) u_strFindFirst;
-                wchar* function (wchar*, uint, wchar*, uint) u_strFindLast;
-                wchar* function (wchar*, wchar, uint) u_memchr;
-                wchar* function (wchar*, wchar, uint) u_memrchr;
-                int    function (wchar*, uint, wchar*, uint, bool) u_strCompare;
-                int    function (wchar*, uint, wchar*, uint, uint, inout UErrorCode) u_strCaseCompare;
-                dchar  function (CharAt, uint*, uint, void*) u_unescapeAt;
-                uint   function (wchar*, uint) u_countChar32;
-                uint   function (wchar*, uint, wchar*, uint, char*, inout UErrorCode) u_strToUpper;
-                uint   function (wchar*, uint, wchar*, uint, char*, inout UErrorCode) u_strToLower;
-                uint   function (wchar*, uint, wchar*, uint, uint, inout UErrorCode) u_strFoldCase;
-                wchar* function (wchar*, uint, uint*, char*, uint, inout UErrorCode) u_strFromUTF8;
-                char*  function (char*, uint, uint*, wchar*, uint, inout UErrorCode) u_strToUTF8;
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static  FunctionLoader.Bind[] targets =
-                [
-                {cast(void**) &u_strFindFirst,      "u_strFindFirst"},
-                {cast(void**) &u_strFindLast,       "u_strFindLast"},
-                {cast(void**) &u_memchr,            "u_memchr"},
-                {cast(void**) &u_memrchr,           "u_memrchr"},
-                {cast(void**) &u_strCompare,        "u_strCompare"},
-                {cast(void**) &u_strCaseCompare,    "u_strCaseCompare"},
-                {cast(void**) &u_unescapeAt,        "u_unescapeAt"},
-                {cast(void**) &u_countChar32,       "u_countChar32"},
-                {cast(void**) &u_strToUpper,        "u_strToUpper"},
-                {cast(void**) &u_strToLower,        "u_strToLower"},
-                {cast(void**) &u_strFoldCase,       "u_strFoldCase"},
-                {cast(void**) &u_strFromUTF8,       "u_strFromUTF8"},
-                {cast(void**) &u_strToUTF8,         "u_strToUTF8"},
-                ];
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static this ()
-        {
-                library = FunctionLoader.bind (icuuc, targets);
-                //test ();
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static ~this ()
-        {
-                FunctionLoader.unbind (library);
-        }
+        mixin(genICUNative!("uc"
+                ,"wchar* function (wchar*, uint, wchar*, uint)", "u_strFindFirst"
+                ,"wchar* function (wchar*, uint, wchar*, uint)", "u_strFindLast"
+                ,"wchar* function (wchar*, wchar, uint)", "u_memchr"
+                ,"wchar* function (wchar*, wchar, uint)", "u_memrchr"
+                ,"int    function (wchar*, uint, wchar*, uint, bool)", "u_strCompare"
+                ,"int    function (wchar*, uint, wchar*, uint, uint, ref UErrorCode)", "u_strCaseCompare"
+                ,"dchar  function (CharAt, uint*, uint, void*)", "u_unescapeAt"
+                ,"uint   function (wchar*, uint)", "u_countChar32"
+                ,"uint   function (wchar*, uint, wchar*, uint, char*, ref UErrorCode)", "u_strToUpper"
+                ,"uint   function (wchar*, uint, wchar*, uint, char*, ref UErrorCode)", "u_strToLower"
+                ,"uint   function (wchar*, uint, wchar*, uint, uint, ref UErrorCode)", "u_strFoldCase"
+                ,"wchar* function (wchar*, uint, uint*, char*, uint, ref UErrorCode)", "u_strFromUTF8"
+                ,"wchar* function (wchar*, uint, uint*, dchar*, uint, ref UErrorCode)", "u_strFromUTF32"
+                ,"char*  function (char*, uint, uint*, wchar*, uint, ref UErrorCode)", "u_strToUTF8"
+        ));
 
         /***********************************************************************
 
@@ -1496,7 +1482,7 @@ class UStringView : ICU, ITextOther
         //private static void test()
         //{
         //        UString s = new UString (r"aaaqw \uabcd eaaa");
-        //        CString16 x = "dssfsdff";
+        //        const String16 x = "dssfsdff";
         //        s ~ x ~ x;
         //        wchar c = s[3];
         //        s[3] = 'Q';

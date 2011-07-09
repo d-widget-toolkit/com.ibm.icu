@@ -178,7 +178,7 @@ private class UDateFormat : ICU
 
         ***********************************************************************/
 
-        this (Style time, Style date, inout ULocale locale, inout UTimeZone tz, UStringView pattern=null)
+        this (Style time, Style date, ref ULocale locale, ref UTimeZone tz, UStringView pattern=null)
         {
                 UErrorCode  e;
                 wchar* p;
@@ -209,7 +209,7 @@ private class UDateFormat : ICU
 
         void format (UString dst, UDate date, UFieldPos p = null)
         {
-                uint fmat (wchar* result, uint len, inout UErrorCode e)
+                uint fmat (wchar* result, uint len, ref UErrorCode e)
                 {
                         return udat_format (handle, date, result, len, p, e);
                 }
@@ -309,7 +309,7 @@ private class UDateFormat : ICU
 
         void getPattern (UString dst, bool localize)
         {
-                uint fmat (wchar* result, uint len, inout UErrorCode e)
+                uint fmat (wchar* result, uint len, ref UErrorCode e)
                 {
                         return udat_toPattern (handle, localize, result, len, e);
                 }
@@ -359,67 +359,21 @@ private class UDateFormat : ICU
 
         ***********************************************************************/
 
-        private static void* library;
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        private static extern (C) 
-        {
-                Handle function (uint, uint, char*, wchar*, uint, wchar*, uint, inout UErrorCode) udat_open;
-                void   function (Handle) udat_close;
-                uint   function (Handle, UDate, wchar*, uint, UFieldPos, inout UErrorCode) udat_format;
-                UDate  function (Handle, wchar*, uint, uint*, inout UErrorCode) udat_parse;
-                void   function (Handle, Handle) udat_setCalendar;
-                void   function (Handle, Handle) udat_setNumberFormat;
-                UDate  function (Handle, inout UErrorCode) udat_get2DigitYearStart;
-                void   function (Handle, UDate, inout UErrorCode) udat_set2DigitYearStart;
-                uint   function (Handle, byte, wchar*, uint, inout UErrorCode) udat_toPattern;
-                void   function (Handle, byte, wchar*, uint) udat_applyPattern;
-                void   function (Handle, byte) udat_setLenient;
-                byte   function (Handle) udat_isLenient;
-                Handle function (Handle) udat_getCalendar;
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static  FunctionLoader.Bind[] targets = 
-                [
-                {cast(void**) &udat_open,               "udat_open"}, 
-                {cast(void**) &udat_close,              "udat_close"},
-                {cast(void**) &udat_format,             "udat_format"},
-                {cast(void**) &udat_parse,              "udat_parse"},
-                {cast(void**) &udat_setCalendar,        "udat_setCalendar"},
-                {cast(void**) &udat_setNumberFormat,    "udat_setNumberFormat"},
-                {cast(void**) &udat_get2DigitYearStart, "udat_get2DigitYearStart"},
-                {cast(void**) &udat_set2DigitYearStart, "udat_set2DigitYearStart"},
-                {cast(void**) &udat_toPattern,          "udat_toPattern"},
-                {cast(void**) &udat_applyPattern,       "udat_applyPattern"},
-                {cast(void**) &udat_setLenient,         "udat_setLenient"},
-                {cast(void**) &udat_isLenient,          "udat_isLenient"},
-                {cast(void**) &udat_getCalendar,        "udat_getCalendar"},
-                ];
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static this ()
-        {
-                library = FunctionLoader.bind (icuin, targets);
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static ~this ()
-        {
-                FunctionLoader.unbind (library);
-        }
+        mixin(genICUNative!("in"
+                ,"Handle function (uint, uint, char*, wchar*, uint, wchar*, uint, ref UErrorCode)", "udat_open"
+                ,"void   function (Handle)", "udat_close"
+                ,"uint   function (Handle, UDate, wchar*, uint, UFieldPos, ref UErrorCode)", "udat_format"
+                ,"UDate  function (Handle, wchar*, uint, uint*, ref UErrorCode)", "udat_parse"
+                ,"void   function (Handle, Handle)", "udat_setCalendar"
+                ,"void   function (Handle, Handle)", "udat_setNumberFormat"
+                ,"UDate  function (Handle, ref UErrorCode)", "udat_get2DigitYearStart"
+                ,"void   function (Handle, UDate, ref UErrorCode)", "udat_set2DigitYearStart"
+                ,"uint   function (Handle, byte, wchar*, uint, ref UErrorCode)", "udat_toPattern"
+                ,"void   function (Handle, byte, wchar*, uint)", "udat_applyPattern"
+                ,"void   function (Handle, byte)", "udat_setLenient"
+                ,"byte   function (Handle)", "udat_isLenient"
+                ,"Handle function (Handle)", "udat_getCalendar"
+        ));
 }
 
 

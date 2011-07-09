@@ -242,7 +242,7 @@ class UCalendar : ICU
 
         ***********************************************************************/
 
-        this (inout UTimeZone zone, inout ULocale locale, Type type = Type.Traditional)
+        this (ref UTimeZone zone, ref ULocale locale, Type type = Type.Traditional)
         {
                 UErrorCode e;
 
@@ -278,7 +278,7 @@ class UCalendar : ICU
 
         ***********************************************************************/
 
-        void setTimeZone (inout UTimeZone zone)
+        void setTimeZone (ref UTimeZone zone)
         {
                 UErrorCode e;
 
@@ -292,9 +292,9 @@ class UCalendar : ICU
 
         ***********************************************************************/
 
-        void getTimeZoneName (UString s, inout ULocale locale, DisplayNameType type=DisplayNameType.Standard)
+        void getTimeZoneName (UString s, ref ULocale locale, DisplayNameType type=DisplayNameType.Standard)
         {       
-                uint format (wchar* dst, uint length, inout ICU.UErrorCode e)
+                uint format (wchar* dst, uint length, ref ICU.UErrorCode e)
                 {
                         return ucal_getTimeZoneDisplayName (handle, type, toString(locale.name), dst, length, e);
                 }
@@ -585,82 +585,27 @@ class UCalendar : ICU
         
         ***********************************************************************/
 
-        private static void* library;
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        private static extern (C) 
-        {
-                Handle  function (wchar*, uint, char*, Type, inout UErrorCode) ucal_open;
-                void    function (Handle) ucal_close;
-                UDate   function () ucal_getNow;
-                UDate   function (Handle, inout UErrorCode) ucal_getMillis;
-                void    function (Handle, UDate, inout UErrorCode) ucal_setMillis;
-                void    function (Handle, uint, uint, uint, inout UErrorCode) ucal_setDate;
-                void    function (Handle, uint, uint, uint, uint, uint, uint, inout UErrorCode) ucal_setDateTime;
-                byte    function (Handle, Handle) ucal_equivalentTo;
-                void    function (Handle, uint, uint, inout UErrorCode) ucal_add;
-                void    function (Handle, uint, uint, inout UErrorCode) ucal_roll;
-                uint    function (Handle, uint, inout UErrorCode) ucal_get;
-                void    function (Handle, uint, uint) ucal_set;
-                byte    function (Handle, uint) ucal_isSet;
-                void    function (Handle, uint) ucal_clearField;
-                void    function (Handle) ucal_clear;
-                uint    function (Handle, uint, uint, inout UErrorCode) ucal_getLimit;
-                void    function (Handle, wchar*, uint, inout UErrorCode) ucal_setTimeZone;
-                byte    function (Handle, uint) ucal_inDaylightTime;
-                uint    function (Handle, uint) ucal_getAttribute;
-                void    function (Handle, uint, uint) ucal_setAttribute;
-                uint    function (Handle, uint, char*, wchar*, uint, inout UErrorCode) ucal_getTimeZoneDisplayName;
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static  FunctionLoader.Bind[] targets = 
-                [
-                {cast(void**) &ucal_open,               "ucal_open"}, 
-                {cast(void**) &ucal_close,              "ucal_close"},
-                {cast(void**) &ucal_getNow,             "ucal_getNow"},
-                {cast(void**) &ucal_getMillis,          "ucal_getMillis"},
-                {cast(void**) &ucal_setMillis,          "ucal_setMillis"},
-                {cast(void**) &ucal_setDate,            "ucal_setDate"},
-                {cast(void**) &ucal_setDateTime,        "ucal_setDateTime"},
-                {cast(void**) &ucal_equivalentTo,       "ucal_equivalentTo"},
-                {cast(void**) &ucal_add,                "ucal_add"},
-                {cast(void**) &ucal_roll,               "ucal_roll"},
-                {cast(void**) &ucal_get,                "ucal_get"},
-                {cast(void**) &ucal_set,                "ucal_set"},
-                {cast(void**) &ucal_clearField,         "ucal_clearField"},
-                {cast(void**) &ucal_clear,              "ucal_clear"},
-                {cast(void**) &ucal_getLimit,           "ucal_getLimit"},
-                {cast(void**) &ucal_setTimeZone,        "ucal_setTimeZone"},
-                {cast(void**) &ucal_inDaylightTime,     "ucal_inDaylightTime"},
-                {cast(void**) &ucal_getAttribute,       "ucal_getAttribute"},
-                {cast(void**) &ucal_setAttribute,       "ucal_setAttribute"},
-                {cast(void**) &ucal_isSet,              "ucal_isSet"},
-                {cast(void**) &ucal_getTimeZoneDisplayName, "ucal_getTimeZoneDisplayName"},
-                ];
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static this ()
-        {
-                library = FunctionLoader.bind (icuin, targets);
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static ~this ()
-        {
-                FunctionLoader.unbind (library);
-        }
-
+        mixin(genICUNative!("in"
+                ,"Handle  function (wchar*, uint, char*, Type, ref UErrorCode)", "ucal_open"
+                ,"void    function (Handle)", "ucal_close"
+                ,"UDate   function ()", "ucal_getNow"
+                ,"UDate   function (Handle, ref UErrorCode)", "ucal_getMillis"
+                ,"void    function (Handle, UDate, ref UErrorCode)", "ucal_setMillis"
+                ,"void    function (Handle, uint, uint, uint, ref UErrorCode)", "ucal_setDate"
+                ,"void    function (Handle, uint, uint, uint, uint, uint, uint, ref UErrorCode)", "ucal_setDateTime"
+                ,"byte    function (Handle, Handle)", "ucal_equivalentTo"
+                ,"void    function (Handle, uint, uint, ref UErrorCode)", "ucal_add"
+                ,"void    function (Handle, uint, uint, ref UErrorCode)", "ucal_roll"
+                ,"uint    function (Handle, uint, ref UErrorCode)", "ucal_get"
+                ,"void    function (Handle, uint, uint)", "ucal_set"
+                ,"byte    function (Handle, uint)", "ucal_isSet"
+                ,"void    function (Handle, uint)", "ucal_clearField"
+                ,"void    function (Handle)", "ucal_clear"
+                ,"uint    function (Handle, uint, uint, ref UErrorCode)", "ucal_getLimit"
+                ,"void    function (Handle, wchar*, uint, ref UErrorCode)", "ucal_setTimeZone"
+                ,"byte    function (Handle, uint)", "ucal_inDaylightTime"
+                ,"uint    function (Handle, uint)", "ucal_getAttribute"
+                ,"void    function (Handle, uint, uint)", "ucal_setAttribute"
+                ,"uint    function (Handle, uint, char*, wchar*, uint, ref UErrorCode)", "ucal_getTimeZoneDisplayName"
+        ));
 }

@@ -89,8 +89,35 @@ private static extern (C) uint wcslen (wchar *s);
 
 *******************************************************************************/
 
+package static String genICUNative(String t, funcs...)() {
+    static assert((t == "in" || t == "uc") && !(funcs.length & 1));
+    String gsh = " ", sh = "";
+    version(D_Version2) {
+        gsh = " __gshared ";
+        sh = "shared ";
+    }
+    String res = "private:
+static"~gsh~"void* library;
+static"~gsh~"extern(C) {\n";
+    foreach(int i, name; funcs) static if(i & 1)
+        res ~= funcs[i-1] ~ " " ~ name ~ ";\n";
+    res ~= "}
+static"~gsh~"FunctionLoader.Bind[] targets = [\n";
+    foreach(int i, name; funcs) static if(i & 1)
+        res ~= "{cast(void**) &" ~ name ~ ", `" ~ name ~ "`},\n";
+    res ~= "];
+"~sh~"static this() {
+    library = FunctionLoader.bind(ICU.icu" ~ t ~ ", targets);
+}
+"~sh~"static ~this() {
+    FunctionLoader.unbind(library);
+}";
+    return res;
+}
+
 protected class ICU
 {
+    
         /***********************************************************************
 
                 The library names to load within the target environment
@@ -178,16 +205,16 @@ protected class ICU
 
         ***********************************************************************/
 
-        package static final void exception (CString msg)
+        package static final void exception (in char[] msg)
         {
-                throw new ICUException ( cast(String)msg);
+                throw new ICUException (cast(String)msg);
         }
 
         /***********************************************************************
 
         ***********************************************************************/
 
-        package static final void testError (UErrorCode e, CString msg)
+        package static final void testError (UErrorCode e, in char[] msg)
         {
                 if (e > 0)
                     exception (msg);
@@ -197,7 +224,7 @@ protected class ICU
 
         ***********************************************************************/
 
-        package static final char* toString (CString string)
+        package static final char* toString (in char[] string)
         {
                 static char[] empty;
 
@@ -210,16 +237,16 @@ protected class ICU
                    char[] copy = new char [string.length + 1];
                    copy [0..string.length] = string;
                    copy [string.length] = 0;
-                   string = copy;
+                   return copy.ptr;
                    }
-                return cast(char*)string.ptr;
+                //return cast(char*)string.ptr;
         }
 
         /***********************************************************************
 
         ***********************************************************************/
 
-        package static final wchar* toString (CString16 string)
+        package static final wchar* toString (in wchar[] string)
         {
                 static wchar[] empty;
 
@@ -232,9 +259,9 @@ protected class ICU
                    wchar[] copy = new wchar [string.length + 1];
                    copy [0..string.length] = string;
                    copy [string.length] = 0;
-                   string = copy;
+                   return copy.ptr;
                    }
-                return cast(wchar*)string.ptr;
+                //return cast(wchar*)string.ptr;
         }
 
         /***********************************************************************
@@ -330,14 +357,14 @@ version (Win32)
                 protected struct Bind
                 {
                         void**  fnc;
-                        CString  name;
+                        const String  name;
                 }
 
                 /***************************************************************
 
                 ***************************************************************/
 
-                static final void* bind (char[] library, inout Bind[] targets)
+                static final void* bind (char[] library, ref Bind[] targets)
                 {
                         HANDLE lib = LoadLibraryA (ICU.toString(library));
 
@@ -401,14 +428,14 @@ else version (linux)
                 protected struct Bind
                 {
                         void**  fnc;
-                        CString  name;
+                        const String  name;
                 }
 
                 /***************************************************************
 
                 ***************************************************************/
 
-                static final void* bind (char[] library, inout Bind[] targets)
+                static final void* bind (char[] library, ref Bind[] targets)
                 {
                         static char[] errorInfo;
                         // printf("the library is %s\n", ICU.toString(library));
@@ -560,7 +587,7 @@ else version (darwin)
                 protected struct Bind
                 {
                         void**  fnc;
-                        CString  name;
+                        const String  name;
                 }
 
                 /***************************************************************
@@ -616,7 +643,7 @@ else version (darwin)
                         return NSAddressOfSymbol(symbol);
                 }
 
-                static final void* bind (char[] library, inout Bind[] targets)
+                static final void* bind (char[] library, ref Bind[] targets)
                 {
                         static char[] errorInfo;
 

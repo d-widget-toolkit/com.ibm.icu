@@ -99,7 +99,7 @@ class UDecimalFormat : UCommonFormat
         
         ***********************************************************************/
 
-        this (inout ULocale locale)
+        this (ref ULocale locale)
         {
                 super (Style.Decimal, null, locale);
         }
@@ -130,7 +130,7 @@ class UCurrencyFormat : UCommonFormat
         
         ***********************************************************************/
 
-        this (inout ULocale locale)
+        this (ref ULocale locale)
         {
                 super (Style.Currency, null, locale);
         }
@@ -147,7 +147,7 @@ class UPercentFormat : UCommonFormat
         
         ***********************************************************************/
 
-        this (inout ULocale locale)
+        this (ref ULocale locale)
         {
                 super (Style.Percent, null, locale);
         }
@@ -164,7 +164,7 @@ class UScientificFormat : UCommonFormat
         
         ***********************************************************************/
 
-        this (inout ULocale locale)
+        this (ref ULocale locale)
         {
                 super (Style.Scientific, null, locale);
         }
@@ -181,7 +181,7 @@ class USpelloutFormat : UCommonFormat
         
         ***********************************************************************/
 
-        this (inout ULocale locale)
+        this (ref ULocale locale)
         {
                 super (Style.Spellout, null, locale);
         }
@@ -198,7 +198,7 @@ class UDurationFormat : UCommonFormat
         
         ***********************************************************************/
 
-        this (inout ULocale locale)
+        this (ref ULocale locale)
         {
                 super (Style.Duration, null, locale);
         }
@@ -215,7 +215,7 @@ class URuleBasedFormat : UNumberFormat
         
         ***********************************************************************/
 
-        this (inout ULocale locale)
+        this (ref ULocale locale)
         {
                 super (Style.RuleBased, null, locale);
         }
@@ -251,7 +251,7 @@ private class UCommonFormat : UNumberFormat
         
         ***********************************************************************/
 
-        this (Style style, char[] pattern, inout ULocale locale)
+        this (Style style, char[] pattern, ref ULocale locale)
         {
                 super (style, pattern, locale);
         }
@@ -648,7 +648,7 @@ private class UCommonFormat : UNumberFormat
 
         void getPattern (UString dst, bool localize)
         {
-                uint fmat (wchar* result, uint len, inout UErrorCode e)
+                uint fmat (wchar* result, uint len, ref UErrorCode e)
                 {
                         return unum_toPattern (handle, localize, result, len, e);
                 }
@@ -768,7 +768,7 @@ class UNumberFormat : ICU
         
         ***********************************************************************/
 
-        this (Style style, char[] pattern, inout ULocale locale)
+        this (Style style, char[] pattern, ref ULocale locale)
         {
                 UErrorCode e;
 
@@ -791,7 +791,7 @@ class UNumberFormat : ICU
 
         void format (UString dst, int number, UFieldPos p = null)
         {
-                uint fmat (wchar* result, uint len, inout UErrorCode e)
+                uint fmat (wchar* result, uint len, ref UErrorCode e)
                 {
                         return unum_format (handle, number, result, len, p, e);
                 }
@@ -805,7 +805,7 @@ class UNumberFormat : ICU
 
         void format (UString dst, long number, UFieldPos p = null)
         {
-                uint fmat (wchar* result, uint len, inout UErrorCode e)
+                uint fmat (wchar* result, uint len, ref UErrorCode e)
                 {
                         return unum_formatInt64 (handle, number, result, len, p, e);
                 }
@@ -819,7 +819,7 @@ class UNumberFormat : ICU
 
         void format (UString dst, double number, UFieldPos p = null)
         {
-                uint fmat (wchar* result, uint len, inout UErrorCode e)
+                uint fmat (wchar* result, uint len, ref UErrorCode e)
                 {
                         return unum_formatDouble (handle, number, result, len, p, e);
                 }
@@ -870,64 +870,20 @@ class UNumberFormat : ICU
 
         ***********************************************************************/
 
-        private static void* library;
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        private static extern (C) 
-        {
-                Handle function (uint, char*, uint, char*, ParseError, inout UErrorCode) unum_open;
-                void   function (Handle) unum_close;
-                int    function (Handle, int,    wchar*, uint, UFieldPos, inout UErrorCode) unum_format;
-                int    function (Handle, long,   wchar*, uint, UFieldPos, inout UErrorCode) unum_formatInt64;
-                int    function (Handle, double, wchar*, uint, UFieldPos, inout UErrorCode) unum_formatDouble;
-                int    function (Handle, wchar*, uint, uint*, inout UErrorCode) unum_parse;
-                long   function (Handle, wchar*, uint, uint*, inout UErrorCode) unum_parseInt64;
-                double function (Handle, wchar*, uint, uint*, inout UErrorCode) unum_parseDouble;
-                int    function (Handle, uint) unum_getAttribute;
-                void   function (Handle, uint, uint) unum_setAttribute;
-                uint   function (Handle, byte, wchar*, uint, inout UErrorCode) unum_toPattern;
-                void   function (Handle, byte, wchar*, uint, ParseError, inout UErrorCode) unum_applyPattern;
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static  FunctionLoader.Bind[] targets = 
-                [
-                {cast(void**) &unum_open,        "unum_open"}, 
-                {cast(void**) &unum_close,       "unum_close"},
-                {cast(void**) &unum_format,      "unum_format"},
-                {cast(void**) &unum_formatInt64  "unum_formatInt64"},
-                {cast(void**) &unum_formatDouble "unum_formatDouble"},
-                {cast(void**) &unum_parse,       "unum_parse"},
-                {cast(void**) &unum_parseInt64   "unum_parseInt64"},
-                {cast(void**) &unum_parseDouble  "unum_parseDouble"},
-                {cast(void**) &unum_getAttribute "unum_getAttribute"},
-                {cast(void**) &unum_setAttribute "unum_setAttribute"},
-                {cast(void**) &unum_toPattern    "unum_toPattern"},
-                ];
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static this ()
-        {
-                library = FunctionLoader.bind (icuin, targets);
-        }
-
-        /***********************************************************************
-
-        ***********************************************************************/
-
-        static ~this ()
-        {
-                FunctionLoader.unbind (library);
-        }
+        mixin(genICUNative!("in"
+                ,"Handle function (uint, char*, uint, char*, ParseError, ref UErrorCode)", "unum_open"
+                ,"void   function (Handle)", "unum_close"
+                ,"int    function (Handle, int,    wchar*, uint, UFieldPos, ref UErrorCode)", "unum_format"
+                ,"int    function (Handle, long,   wchar*, uint, UFieldPos, ref UErrorCode)", "unum_formatInt64"
+                ,"int    function (Handle, double, wchar*, uint, UFieldPos, ref UErrorCode)", "unum_formatDouble"
+                ,"int    function (Handle, wchar*, uint, uint*, ref UErrorCode)", "unum_parse"
+                ,"long   function (Handle, wchar*, uint, uint*, ref UErrorCode)", "unum_parseInt64"
+                ,"double function (Handle, wchar*, uint, uint*, ref UErrorCode)", "unum_parseDouble"
+                ,"int    function (Handle, uint)", "unum_getAttribute"
+                ,"void   function (Handle, uint, uint)", "unum_setAttribute"
+                ,"uint   function (Handle, byte, wchar*, uint, ref UErrorCode)", "unum_toPattern"
+                ,"void   function (Handle, byte, wchar*, uint, ParseError, ref UErrorCode)", "unum_applyPattern"
+        ));
 }
 
 
